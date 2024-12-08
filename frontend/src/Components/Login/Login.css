@@ -193,8 +193,3 @@ form .linkTxt {
     pointer-events: none; /* Prevent interaction with the icon */
     transition: 0.5s;
 }
-
-.input-boxinput:focus~.icon,
-.input-box input:valid~.icon {
-    color: var(--blue); /* Change icon color on focus/valid input */
-}

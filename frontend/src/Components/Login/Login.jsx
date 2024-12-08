@@ -35,25 +35,25 @@ const Login = () => {
                 <span className="rotate-bg"></span>
                 <span className="rotate-bg2"></span>
                 <div className="form-box1 login">
-                    <h2 className="title animation">Login</h2>
+                    <h2 className="title">Login</h2>
                     <form onSubmit={handleSubmit}>
-                        <div className="input-box animation">
+                        <div className="input-box">
                             <input type="text" name='username' onChange={(e) => setUsername(e.target.value)} required />
                             <label>Username</label>
                             <FaUserLock className='icon'/>
                         </div>
 
-                        <div className="input-box animation">
+                        <div className="input-box ">
                             <input type="password" name='password' onChange={(e) => setPassword(e.target.value)} required />
                             <label>Password</label>
                             <MdOutlinePassword className='icon'/>
                         </div>
 
-                        <div className="linkTxt animation">
+                        <div className="linkTxt">
                             <p><Link to='/Dashboard' className="register-link">Forgot Password?</Link></p>
                         </div>
 
-                        <button type="submit" className="btn animation">Login</button>
+                      <button type="submit">Login</button>
                     </form>
                 </div>
 

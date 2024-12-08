@@ -4,17 +4,21 @@ import { Link } from 'react-router-dom';
 import AddAdminForm from '../Admin/AddAdmin';
 import UpdateAdminForm from '../Admin/UpdateAdminInfo';
 import ShowAdmins from '../Admin/ShowAllAdmins';
+import Notaries from '../DataManagement/Notaries'
 
 function Dashboard() {
+  
     const [clicked, setClicked] = useState(false);
     const [adminDropdown, setAdminDropdown] = useState(false);  // State for Admin dropdown
     const [dataDropdown, setDataDropdown] = useState(false);    // State for Data dropdown
     const [showAddAdmin, setshowAddAdmin] = useState(false); 
     const [showUpdateAdmin, setshowUpdateAdmin] = useState(false);
     const [ShowAllAdmins, setShowAllAdmins] = useState(false);
+    const [ShowNotaries, setShowNotaries] = useState(false);
 
     // Get the logged-in admin's username from localStorage
     const username = localStorage.getItem('adminUsername') || '';
+    
 
     const isAdminAllowed = username.toUpperCase().startsWith('H');
 
@@ -34,26 +38,41 @@ function Dashboard() {
         setshowAddAdmin(true)
         setshowUpdateAdmin(false)
         setShowAllAdmins(false)
+        setShowNotaries(false)
     }
 
     const updateAdmin = () => {
         setshowUpdateAdmin(true)
         setshowAddAdmin(false)
         setShowAllAdmins(false)
+        setShowNotaries(false)
     }
 
     const showAllAdmins = () => {
         setShowAllAdmins(true)
         setshowUpdateAdmin(false)
         setshowAddAdmin(false)
-        
+        setShowNotaries(false)
+    }
+    const ShowNotarie = () => {
+        setShowNotaries(true)
+        setShowAllAdmins(false)
+        setshowUpdateAdmin(false)
+        setshowAddAdmin(false)
+    }
+
+    const HideAll = () => {
+        setShowAllAdmins(false)
+        setshowUpdateAdmin(false)
+        setshowAddAdmin(false)
+        setShowNotaries(false)
     }
 
     return (
        <div className='home'>
             <nav className='NavBarItems'>
                 <div>
-                    <h1>PASD Admin Dashboard</h1>
+                    <h2 className='h2Dashboard'>PASD Admin Dashboard</h2>
                 </div>
 
                 <div className='menu-icons' onClick={handleClick}>
@@ -61,6 +80,12 @@ function Dashboard() {
                 </div>
 
                 <ul className={clicked ? "nav-menu active" : "nav-menu"}>
+                    <li>
+                        <Link to='/' className='nav-Links' onClick={HideAll}>
+                            <i className='fa-solid fa-home'></i>Home
+                        </Link>
+                    </li>
+
                     {/* Conditionally render Admin Management if allowed */}
                     {isAdminAllowed && (
                         <li className="nav-item">
@@ -91,34 +116,39 @@ function Dashboard() {
                         {dataDropdown && (
                             <ul className="dropdown">
                                 <li>
-                                    <Link to="/ViewData" className="nav-Links">Buildings</Link>
+                                    <a className="nav-Links">Buildings</a>
                                 </li>
                                 <li>
-                                    <Link to="/ViewData" className="nav-Links">Architects</Link>
+                                    <a className="nav-Links">Architects</a>
                                 </li>
                                 <li>
-                                    <Link to="/ImportData" className="nav-Links">Countries</Link>
+                                    <a className="nav-Links">Countries</a>
                                 </li>
                                 <li>
-                                    <Link to="/ViewData" className="nav-Links">Location</Link>
+                                    <a className="nav-Links">Location</a>
                                 </li>
                                 <li>
-                                    <Link to="/ViewData" className="nav-Links">Owners</Link>
+                                    <a className="nav-Links">Owners</a>
                                 </li>
-                                <li>
-                                    <Link to="/ViewData" className="nav-Links">Tenants</Link>
-                                </li>
-                                <li>
-                                    <Link to="/ViewData" className="nav-Links">Notaries</Link>
+                                <li onClick={ShowNotarie}>
+                                    <a className="nav-Links">Notaries</a>
                                 </li>
                             </ul>
                         )}
                     </li>
+
+                     <li>
+                        <Link to='/' className='nav-Links'>
+                            <i className='fa fa-sign-out'></i>Logout
+                        </Link>
+                    </li>
+
                 </ul>
             </nav>
             {showAddAdmin && <AddAdminForm />}
             {showUpdateAdmin && <UpdateAdminForm />}
             {ShowAllAdmins && <ShowAdmins />}
+            {ShowNotaries && <Notaries />}
         </div>
     );
 }

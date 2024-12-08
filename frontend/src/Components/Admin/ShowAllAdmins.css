@@ -22,9 +22,9 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 40px;
+    padding: 40px; 
     background-color: white;
-    margin: 60px 0 0 0;
+    
 }
 
 /* Heading for the page */
@@ -33,6 +33,7 @@
     color: var(--black);
     margin-bottom: 40px;
     text-align: center;
+    margin-top: 60px;
 }
 
 /* Admin list table container */

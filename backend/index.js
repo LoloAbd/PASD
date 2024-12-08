@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const AdminModel = require('./models/Admin');
 const BuildingModel = require('./models/Building');
+const NotariesModel = require('./models/Notaries');
+const OwnersModel = require('./models/Owners');
 
 
 const app = express();
@@ -106,6 +108,29 @@ app.get('/buildings', async (req, res) => {
   }
 });
 
+
+// API Endpoint to Fetch Notaries
+app.get('/notaries', async (req, res) => {
+  try {
+        const notaries = await NotariesModel.find(); 
+        res.status(200).json(notaries);
+  } catch (error) {
+      console.error("Error fetching notaries:", error); // Debugging
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+// API Endpoint to Fetch Owners
+app.get('/owners', async (req, res) => {
+  try {
+        const owners = await OwnersModel.find();
+        res.status(200).json(owners);
+  } catch (error) {
+      console.error("Error fetching owners:", error); // Debugging
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 // Server setup
 app.listen(3001, () => {

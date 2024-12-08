@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './AddAdmin.css';
+import './UpdateAdminInfo.css';
 import axios from 'axios';
 import { SlEnvolope } from "react-icons/sl";
 import { GoPersonFill } from "react-icons/go";
@@ -59,15 +59,15 @@ const UpdateAdminInfo = () => {
     }
 
     return (
-        <div className="AddAdminHome">
-            <div className="AddAdminWrapper">
-                <div className="AddAdminFormBox">
-                    <h2 className="AddAdminTitle">Update Admin Information</h2>
-
+        <div className="UpdateAdminHome">
+            <div className="UpdateAdminWrapper">
+                <div className="UpdateAdminFormBox">
+                    <h2 className="UpdateAdminTitle">Update Admin Information</h2>
+ 
                     {/* Search Admin by Username */}
                     {!isSearchHidden && (
                         <div>
-                        <div className="AddAdminInputBox">
+                        <div className="UpdateAdminInputBox">
                             <input
                                 type="text"
                                 name="searchUsername"
@@ -78,7 +78,7 @@ const UpdateAdminInfo = () => {
                                 <label>Search by Username</label>
                                 <FaUserLock className="icon" />
                             </div>
-                            <button onClick={handleSearch} className="AddAdminBtn" type="button">
+                            <button onClick={handleSearch} className="UpdateAdminBtn" type="button">
                                 Search
                             </button>
                     </div>
@@ -88,7 +88,7 @@ const UpdateAdminInfo = () => {
 
                     {isAdminFound && (
                         <form onSubmit={handleSubmit}>
-                            <div className="AddAdminInputBox">
+                            <div className="UpdateAdminInputBox">
                                 <input
                                     type="text"
                                     name="firstName"
@@ -100,7 +100,7 @@ const UpdateAdminInfo = () => {
                                 <GoPersonFill className="icon" />
                             </div>
 
-                            <div className="AddAdminInputBox">
+                            <div className="UpdateAdminInputBox">
                                 <input
                                     type="text"
                                     name="lastName"
@@ -112,7 +112,7 @@ const UpdateAdminInfo = () => {
                                 <GoPersonFill className="icon" />
                             </div>
 
-                            <div className="AddAdminInputBox">
+                            <div className="UpdateAdminInputBox">
                                 <input
                                     type="email"
                                     name="email"
@@ -124,7 +124,7 @@ const UpdateAdminInfo = () => {
                                 <SlEnvolope className="icon" />
                             </div>
 
-                            <div className="AddAdminInputBox">
+                            <div className="UpdateAdminInputBox">
                                 <input
                                     type="password"
                                     name="password"
@@ -135,7 +135,7 @@ const UpdateAdminInfo = () => {
                                 <MdOutlinePassword className="icon" />
                             </div>
 
-                            <button type="submit" className="AddAdminBtn">
+                            <button type="submit" className="UpdateAdminBtn">
                                 Update
                             </button>
                         </form>
