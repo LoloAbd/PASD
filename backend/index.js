@@ -5,6 +5,8 @@ const AdminModel = require('./models/Admin');
 const BuildingModel = require('./models/Building');
 const NotariesModel = require('./models/Notaries');
 const OwnersModel = require('./models/Owners');
+const CountriesModel = require('./models/Countries ')
+const CitiesModel = require('./models/Cities')
 
 
 const app = express();
@@ -131,6 +133,29 @@ app.get('/owners', async (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+app.get("/countries", async (req, res) => {
+  try {
+    const countries = await CountriesModel.find(); // Fetch only required fields
+    res.status(200).json(countries);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching countries" });
+  }
+});
+
+
+app.post("/cities", async (req, res) => {
+  const { city_name, country_id } = req.body;
+
+    try {
+    const newCity = await CitiesModel.create({country_id, city_name });
+   
+    res.status(201).json({ message: "City added successfully!", cities: newCity});
+  } catch (error) {
+    res.status(500).json({ error: "Error adding city" });
+  }
+});
+
 
 // Server setup
 app.listen(3001, () => {

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router";
 import './AddAdmin.css';
 import axios from 'axios';
 import { SlEnvolope } from "react-icons/sl";
@@ -14,7 +13,6 @@ const AddAdmin = () => {
     const [username, setUsername] = useState()
     const [password, setPassword] = useState()
     const [formVisible, setFormVisible] = useState(true);
-    const navigate = useNavigate()
 
     const handleSubmit = (e) => {
     e.preventDefault(); // Prevent form from refreshing the page

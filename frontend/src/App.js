@@ -5,6 +5,8 @@ import UpdateAdminInfo from './Components/Admin/UpdateAdminInfo';
 import Dashboard from './Components/Dashboard/Dashboard'
 import ShowAllAdmins from './Components/Admin/ShowAllAdmins';
 import Notaries from './Components/DataManagement/Notaries';
+import Owners from './Components/DataManagement/Owners';
+import AddCitie from './Components/Admin/AddCitie'
 
 
 
@@ -19,6 +21,7 @@ function App() {
         <Route path='/AddAdmin' element={<AddAdmin />}></Route>
         <Route path='/ShowAllAdmins' element={<ShowAllAdmins />}></Route>
         <Route path='/Notaries' element={<Notaries />}></Route>
+        <Route path='/Owners' element={<Owners />}></Route>
       
       </Routes>
     </BrowserRouter>
