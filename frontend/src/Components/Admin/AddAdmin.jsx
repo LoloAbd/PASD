@@ -7,8 +7,8 @@ import { FaUserLock } from "react-icons/fa6";
 import { MdOutlinePassword } from "react-icons/md";
 
 const AddAdmin = () => {
-    const [firstName, setFirstName] = useState()
-    const [lastName, setLastName] = useState()
+    const [first_name, setFirstName] = useState() 
+    const [last_name, setLastName] = useState()
     const [email, setEmail] = useState()
     const [username, setUsername] = useState()
     const [password, setPassword] = useState()
@@ -18,7 +18,7 @@ const AddAdmin = () => {
     e.preventDefault(); // Prevent form from refreshing the page
 
     // Make the API call to add a new admin
-        axios.post('http://localhost:3001/addAdmin', { firstName, lastName, email, username, password })
+        axios.post('http://localhost:3001/addAdmin', { first_name, last_name, email, username, password })
             .then(res => {
                 console.log(res);
                 alert("Admin Inserted Successfully");
@@ -57,13 +57,13 @@ const AddAdmin = () => {
                     <form onSubmit={handleSubmit}>
 
                          <div className="AddAdminInputBox">
-                            <input type="text" name='firstName' onChange={(e) => setFirstName(e.target.value)} required />
+                            <input type="text" name='first_name' onChange={(e) => setFirstName(e.target.value)} required />
                             <label>First Name</label>
                             <GoPersonFill  className='icon'/>
                         </div>
 
                          <div className="AddAdminInputBox">
-                            <input type="text" name='lastName' onChange={(e) => setLastName(e.target.value)} required />
+                            <input type="text" name='last_name' onChange={(e) => setLastName(e.target.value)} required />
                             <label>Last Name</label>
                             <GoPersonFill  className='icon'/>
                         </div>

@@ -45,6 +45,47 @@ const Notaries = () => {
     setSearchTerm(e.target.value);
   };
 
+   const handleEdit = (id) => {
+    const newName = prompt('Enter new name:');
+  
+    if (newName) {
+      axios.put(`http://localhost:3001/notaries/${id}`, { name: newName })
+      .then((res) => {
+        alert('Notary updated successfully');
+        setNotaries(
+          notaries.map((notary) =>
+            notary._id === id ? { ...notary, name: newName } : notary
+          )
+        );
+      })
+      .catch((err) => {
+        console.error('Error updating notary:', err);
+        alert('Failed to update notary');
+      });
+    
+    }
+  };
+
+  
+  const handleDelete = (id) => {
+    if (window.confirm('Are you sure you want to delete this notary?')) {
+      axios
+      
+        .delete(`http://localhost:3001/notaries/${id}`)
+        .then((res) => {
+          console.log("Received ID for deletion:", id);
+          console.log('Attempting to delete notary with ID:', id);
+          alert('Notary deleted successfully');
+          setNotaries(notaries.filter((notary) => notary._id !== id)); // Update UI
+        })
+        .catch((err) => {
+          console.log('Attempting to delete notary with ID:', id);
+          console.error('Error deleting notary:', err);
+          alert('Failed to delete notary');
+        });
+    }
+  };
+  
 
   const filteredNotaries = notaries.filter((notary) =>
     Object.values(notary).some((value) =>
@@ -92,8 +133,8 @@ const Notaries = () => {
                 <td>{notary._id}</td>
                 <td>{notary.name}</td>
                 <td>
-                <button className="edit-button"><FaEdit /> </button>
-                <button className="delete-button"><FaTrash /></button>
+                <button className="edit-button" onClick={() => handleEdit(notary._id)}><FaEdit /> </button>
+                <button className="delete-button" onClick={() => handleDelete(notary._id)}><FaTrash /></button>
                 </td>
               </tr>
             ))

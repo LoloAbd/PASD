@@ -32,8 +32,8 @@ const ShowAllAdmins = () => {
                     {admins.length > 0 ? (
                         admins.map(admin => (
                             <tr key={admin._id}>
-                                <td>{admin.firstName}</td>
-                                <td>{admin.lastName}</td>
+                                <td>{admin.first_name}</td>
+                                <td>{admin.last_name}</td>
                                 <td>{admin.email}</td>
                                 <td>{admin.username}</td>
                             </tr>

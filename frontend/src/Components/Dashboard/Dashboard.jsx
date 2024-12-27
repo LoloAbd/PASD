@@ -172,7 +172,7 @@ function Dashboard() {
                                     <a className="nav-Links">Addresses</a>
                                 </li>
                                 <li>
-                                    <a className="nav-Links">Building During the Regin</a>
+                                    <a className="nav-Links">Building During the Reign</a>
                                 </li>
                                 <li>
                                     <a className="nav-Links">Status</a>
@@ -200,7 +200,7 @@ function Dashboard() {
                     </li>
 
                      <li>
-                        <Link to='/' className='nav-Links'>
+                        <Link to='/AddCitie' className='nav-Links'>
                             <i className='fa fa-sign-out'></i>Logout
                         </Link>
                     </li>

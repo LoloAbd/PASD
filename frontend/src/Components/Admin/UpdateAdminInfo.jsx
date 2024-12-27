@@ -8,8 +8,8 @@ import { MdOutlinePassword } from "react-icons/md";
 
 const UpdateAdminInfo = () => {
     const [searchUsername, setSearchUsername] = useState(''); // For searching admin by username
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
+    const [first_name, setFirstName] = useState('');
+    const [last_name, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -22,8 +22,8 @@ const UpdateAdminInfo = () => {
         axios.get(`http://localhost:3001/admin/${searchUsername}`)
             .then((res) => {
                 if (res.data) {
-                    setFirstName(res.data.firstName);
-                    setLastName(res.data.lastName);
+                    setFirstName(res.data.first_name);
+                    setLastName(res.data.last_name);
                     setEmail(res.data.email);
                     setUsername(res.data.username);
                     setPassword(res.data.password);
@@ -44,7 +44,7 @@ const UpdateAdminInfo = () => {
     // Handle update admin
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.put(`http://localhost:3001/admin/${username}`, { firstName, lastName, email, username, password })
+        axios.put(`http://localhost:3001/admin/${username}`, { first_name, last_name, email, username, password })
             .then((res) => {
                 console.log(res);
                 alert("Admin updated successfully!");
@@ -92,7 +92,7 @@ const UpdateAdminInfo = () => {
                                 <input
                                     type="text"
                                     name="firstName"
-                                    value={firstName}
+                                    value={first_name}
                                     onChange={(e) => setFirstName(e.target.value)}
                                     required
                                 />
@@ -104,7 +104,7 @@ const UpdateAdminInfo = () => {
                                 <input
                                     type="text"
                                     name="lastName"
-                                    value={lastName}
+                                    value={last_name}
                                     onChange={(e) => setLastName(e.target.value)}
                                     required
                                 />
