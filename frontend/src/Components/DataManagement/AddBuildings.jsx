@@ -5,6 +5,8 @@ import ReactSelect from "react-select";
 
 
 const AddBuildings = () => {
+
+
   const [building_name, setBuildingName] = useState("");
   const [bdr_id, setBdrId] = useState("");
   const [dateOfConstruction, setDateOfConstruction] = useState("");
@@ -36,7 +38,6 @@ const AddBuildings = () => {
   const [notaryArray, setNotaryArray] = useState([]);
   const [architectArray, setArchitectArray] = useState([]);
   const [tenantArray, setTenantArray] = useState([]);
-
 
   const handleOwChange = (selectedOwOption) => {
     const formattedData = selectedOwOption.map((option) => ({

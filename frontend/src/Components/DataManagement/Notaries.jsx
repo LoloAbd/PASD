@@ -4,6 +4,7 @@ import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import "./DataPage.css";
+import AddNotary from "./AddNotary";
 
 const Notaries = () => {
   const [notaries, setNotaries] = useState([]);
@@ -15,6 +16,14 @@ const Notaries = () => {
   const [formVisible, setFormVisible] = useState(false);
   const [selectedNotary, setSelectedNotary] = useState(null);
 
+   const [showAddNotary, setShowAddNotary] = useState(false);
+  
+  
+    const ShowAddNotaries = () => {
+      setShowAddNotary(true)
+    }
+  
+  
   // Fetch notaries on component mount
   useEffect(() => {
     axios
@@ -98,6 +107,15 @@ const Notaries = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+
+  if (showAddNotary) {
+    return (
+      <div className="table-container">
+      {showAddNotary && <AddNotary />}
+    </div>
+    );
+  }
+
   return (
     <div className="table-container">
       {formVisible ? (
@@ -129,27 +147,16 @@ const Notaries = () => {
               )}
             </tbody>
           </table>
-          <button
-            className="btn btn-secondary"
-            onClick={() => setFormVisible(false)}
-          >
-            Back to Notaries
-          </button>
+          <button className="submit-button " onClick={() => setFormVisible(false)} > Back to Notaries </button>
         </>
-      ) : (
+        ) : (
         <>
           <h1>Notaries</h1>
           <div className="controls">
-            <input
-              type="text"
-              className="form-control search-bar"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-            <button className="btn btn-primary add-button">
-              <FaPlus /> Add Notary
-            </button>
+            <input type="text" className="form-control search-bar" placeholder="Search..." value={searchTerm} onChange={handleSearch} />
+            <button className="btn btn-primary add-button" onClick={() => {
+                      ShowAddNotaries();
+                    }}> <FaPlus /></button>
           </div>
           <table className="custom-table">
             <thead>
@@ -176,16 +183,11 @@ const Notaries = () => {
                       >
                         <FaEdit />
                       </button>
-                      <button
-                        className="view-button"
-                        onClick={() => handleBuildingSearch(notary._id)}
-                      >
-                        <FaEye /> View Buildings
-                      </button>
+                      <button className="view-button"  onClick={() => handleBuildingSearch(notary._id)} > <FaEye /> View Buildings</button>
                     </td>
                   </tr>
                 ))
-              ) : (
+                ) : (
                 <tr>
                   <td colSpan="3">No notaries found.</td>
                 </tr>

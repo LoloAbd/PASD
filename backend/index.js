@@ -317,7 +317,7 @@ app.get("/get-buildings", async (req, res) => {
 
 
 
-// Add Address testt
+// Add Address
 app.post("/AddAddress", async (req, res) => {
   const {city_id, street, coordinates} = req.body;
 
@@ -376,7 +376,6 @@ app.post("/add-building-status", async (req, res) => {
 });
 
 
-
 //Add Buildings_Architects
 app.post("/add-buildings-architects", async (req, res) => {
   const { building_id, architect_id } = req.body;
@@ -394,6 +393,40 @@ app.post("/add-buildings-architects", async (req, res) => {
   }
 });
 
+//Add Architects
+app.post("/add-architect", async (req, res) => {
+  const { architect_name, architect_image, en_biography, ar_biography} = req.body;
+
+  try {
+    // Create and save the new notary document
+    const newArchitects = new Architects_Model({architect_name, architect_image, en_biography, ar_biography});
+    await newArchitects.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "Architects added successfully!", architects: newArchitects,});
+  } catch (error) {
+    console.error("Error adding Architects:", error);
+    res.status(500).json({ message: "An error occurred while adding Architects." });
+  }
+});
+
+
+//Add Notary
+app.post("/add-notary", async (req, res) => {
+  const { notary_name} = req.body;
+
+  try {
+    // Create and save the new notary document
+    const newNotary = new Notaries_Model({notary_name});
+    await newNotary.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "notary added successfully!", notaries: newNotary,});
+  } catch (error) {
+    console.error("Error adding notary:", error);
+    res.status(500).json({ message: "An error occurred while adding notary." });
+  }
+});
 
 
 //Add Buildings_Notaries
@@ -430,6 +463,23 @@ app.post("/add-buildings-owners", async (req, res) => {
   }
 });
 
+//Add Owners
+app.post("/add-owner", async (req, res) => {
+  const { owner_name} = req.body;
+
+  try {
+    // Create and save the new notary document
+    const newOwner = new Owners_Model({owner_name});
+    await newOwner.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "owner added successfully!", owners: newOwner,});
+  } catch (error) {
+    console.error("Error adding owner:", error);
+    res.status(500).json({ message: "An error occurred while adding owner." });
+  }
+});
+
 
 //Add Buildings_Tenant
 app.post("/add-buildings-tenants", async (req, res) => {
@@ -445,6 +495,23 @@ app.post("/add-buildings-tenants", async (req, res) => {
   } catch (error) {
     console.error("Error adding buildings_tenants:", error);
     res.status(500).json({ message: "An error occurred while adding buildings_tenants." });
+  }
+});
+
+//Add Tenant
+app.post("/add-tenant", async (req, res) => {
+  const { tenant_name} = req.body;
+
+  try {
+    // Create and save the new notary document
+    const newTenant = new Tenants_Model({tenant_name});
+    await newTenant.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "Tenant added successfully!", tenants: newTenant,});
+  } catch (error) {
+    console.error("Error adding Tenant:", error);
+    res.status(500).json({ message: "An error occurred while adding Tenant." });
   }
 });
 
@@ -467,39 +534,6 @@ app.post("/add-images", async (req, res) => {
 });
 
 
-/* app.get('/notaries/:id/buildings', async (req, res) => { 
-  const { id } = req.params;
-  try {
-    console.log("Fetching building IDs for notary:", id);
-
-    // Find all entries in Buildings_Notaries_Model for the given notary_id
-    const notaryBuildings = await Buildings_Notaries_Model.find({ notary_id: id });
-
-    console.log("Raw building data found:", notaryBuildings);
-
-    if (notaryBuildings.length === 0) {
-      return res.status(404).json({ message: 'No buildings found for this notary.' });
-    }
-
-    // Use a while loop to extract building IDs into an array
-    const buildingIds = [];
-    let i = 0;
-
-    while (i < notaryBuildings.length) {
-      buildingIds.push(notaryBuildings[i].building_id);
-      i++;
-    }
-
-    console.log("Building IDs array:", buildingIds);
-
-    res.status(200).json(buildingIds); // Return the array of building IDs
-  } catch (error) {
-    console.error("Error fetching building IDs:", error);
-    res.status(500).json({ error: 'Failed to fetch building IDs' });
-  }
-});*/
-
-
 app.get('/notaries/:id/buildings', async (req, res) => {
   const { id } = req.params;
   try {
@@ -517,6 +551,63 @@ app.get('/notaries/:id/buildings', async (req, res) => {
       return {
         building_id: buildings.building_id._id,
         building_name: buildings.building_id.building_name,
+      };
+    }).filter(Boolean); // Remove null entries
+
+    res.status(200).json(buildingsWithDetails);
+  } catch (error) {
+    console.error("Error fetching buildings:", error);
+    res.status(500).json({ error: 'Failed to fetch buildings' });
+  }
+});
+
+
+app.get('/architects/:id/buildings', async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log("Fetching buildings for architect:", id);
+    const architectBuildings = await Buildings_Architects_Model.find({ architect_id: id })
+      .populate('building_id');
+
+    console.log("Architect buildings found:", architectBuildings);
+
+    const buildingsWithDetails = architectBuildings.map(buildings => {
+      if (!buildings.building_id) {
+        console.warn("Missing building details for:", buildings);
+        return null; // Handle missing data
+      }
+      return {
+        building_id: buildings.building_id._id,
+        building_name: buildings.building_id.building_name,
+      };
+    }).filter(Boolean); // Remove null entries
+
+    res.status(200).json(buildingsWithDetails);
+  } catch (error) {
+    console.error("Error fetching buildings:", error);
+    res.status(500).json({ error: 'Failed to fetch buildings' });
+  }
+});
+
+
+
+app.get('/owners/:id/buildings', async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log("Fetching buildings for owner:", id);
+    const ownerBuildings = await Buildings_Owners_Model.find({ owner_id: id })
+      .populate('building_id');
+
+    console.log("Owner buildings found:", ownerBuildings);
+
+    const buildingsWithDetails = ownerBuildings.map(building => {
+      if (!building.building_id) {
+        console.warn("Missing building details for:", building);
+        return null; // Handle missing data
+      }
+      return {
+        building_id: building.building_id._id,
+        building_name: building.building_id.building_name,
       };
     }).filter(Boolean); // Remove null entries
 

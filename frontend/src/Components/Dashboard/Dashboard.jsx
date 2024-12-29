@@ -6,7 +6,6 @@ import UpdateAdminForm from '../Admin/UpdateAdminInfo';
 import ShowAdmins from '../Admin/ShowAllAdmins';
 import Notaries from '../DataManagement/Notaries'
 import Owners from '../DataManagement/Owners';
-import Countries from '../DataManagement/Countries';
 import ShowBuilding from '../DataManagement/ShowBuildings';
 
 function Dashboard() {
@@ -19,7 +18,6 @@ function Dashboard() {
     const [ShowAllAdmins, setShowAllAdmins] = useState(false);
     const [ShowNotaries, setShowNotaries] = useState(false);
     const [ShowOwners, setShowOwners] = useState(false);
-    const [ShowCountries, setShowCountries] = useState(false);
     const [ShowBuildings, setShowBuildings] = useState(false);
 
     // Get the logged-in admin's username from localStorage
@@ -51,7 +49,6 @@ function Dashboard() {
         setShowAllAdmins(false)
         setShowNotaries(false)
         setShowOwners(false)
-        setShowCountries(false)
         setShowBuildings(false)
         
     }
@@ -62,7 +59,6 @@ function Dashboard() {
         setShowAllAdmins(false)
         setShowNotaries(false)
         setShowOwners(false)
-        setShowCountries(false)
         setShowBuildings(false)
     }
 
@@ -72,7 +68,6 @@ function Dashboard() {
         setshowAddAdmin(false)
         setShowNotaries(false)
         setShowOwners(false)
-        setShowCountries(false)
         setShowBuildings(false)
     }
     const ShowNotarie = () => {
@@ -81,7 +76,6 @@ function Dashboard() {
         setshowUpdateAdmin(false)
         setshowAddAdmin(false)
         setShowOwners(false)
-        setShowCountries(false)
         setShowBuildings(false)
     }
 
@@ -91,17 +85,6 @@ function Dashboard() {
         setShowAllAdmins(false)
         setshowUpdateAdmin(false)
         setshowAddAdmin(false)
-        setShowCountries(false)
-        setShowBuildings(false)
-    }
-
-    const ShowAllCountries = () => {
-        setShowOwners(false)
-        setShowNotaries(false)
-        setShowAllAdmins(false)
-        setshowUpdateAdmin(false)
-        setshowAddAdmin(false)
-        setShowCountries(true)
         setShowBuildings(false)
     }
 
@@ -111,7 +94,6 @@ function Dashboard() {
         setShowAllAdmins(false)
         setshowUpdateAdmin(false)
         setshowAddAdmin(false)
-        setShowCountries(false)
         setShowBuildings(true)
     }
 
@@ -121,7 +103,6 @@ function Dashboard() {
         setshowAddAdmin(false)
         setShowNotaries(false)
         setShowOwners(false)
-        setShowCountries(false)
         setShowBuildings(false)
     }
 
@@ -181,27 +162,6 @@ function Dashboard() {
                                 <li>
                                     <a className="nav-Links">Architects</a>
                                 </li>
-                                <li onClick={() => {
-                                    ShowAllCountries();
-                                    handleSelection("countries");
-                                }}>
-                                    <a className="nav-Links">Countries</a>
-                                </li>
-                                 <li>
-                                    <a className="nav-Links">Cities</a>
-                                </li>
-                                <li>
-                                    <a className="nav-Links">Addresses</a>
-                                </li>
-                                <li>
-                                    <a className="nav-Links">Building During the Reign</a>
-                                </li>
-                                <li>
-                                    <a className="nav-Links">Status</a>
-                                </li>
-                                <li>
-                                    <a className="nav-Links">Usage</a>
-                                </li>
                                 <li>
                                     <a className="nav-Links">Tenant</a>
                                 </li>
@@ -216,6 +176,9 @@ function Dashboard() {
                                     handleSelection("notaries");
                                 }}>
                                     <a className="nav-Links">Notaries</a>
+                                </li>
+                                <li>
+                                    <a className="nav-Links">Cities</a>
                                 </li>
                             </ul>
                         )}
@@ -234,7 +197,6 @@ function Dashboard() {
             {ShowAllAdmins && <ShowAdmins />}
             {ShowNotaries && <Notaries />}
             {ShowOwners && <Owners />}
-            {ShowCountries && <Countries />}
             {ShowBuildings && <ShowBuilding />}
         </div>
     );

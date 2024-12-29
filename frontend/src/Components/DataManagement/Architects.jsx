@@ -4,32 +4,33 @@ import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import "./DataPage.css";
-import AddOwner from "./AddOwner";
+import AddArchitect from "./AddArchitect";
 
-const Owners = () => {
-  const [owners, setOwners] = useState([]);
+const Architects = () => {
+  const [architects, setArchitects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(7);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [buildings, setBuildings] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
-  const [selectedOwner, setSelectedOwner] = useState(null);
-  const [showAddOwner, setShowAddOwner] = useState(false);
+  const [selectedArchitect, setSelectedArchitect] = useState(null);
 
-  const showAddOwners = () => {
-    setShowAddOwner(true);
+  const [showAddArchitect, setShowAddArchitect] = useState(false);
+
+  const ShowAddArchitects = () => {
+    setShowAddArchitect(true);
   };
 
-  // Fetch owners on component mount
+  // Fetch architects on component mount
   useEffect(() => {
     axios
-      .get("http://localhost:3001/owners") // Adjust URL if needed
+      .get("http://localhost:3001/architects") // Adjust URL if needed
       .then((res) => {
-        setOwners(res.data);
+        setArchitects(res.data);
       })
       .catch((err) => {
-        console.error("Error fetching owners:", err);
+        console.error("Error fetching Architects:", err);
       });
   }, []);
 
@@ -40,12 +41,12 @@ const Owners = () => {
         : "asc";
     setSortConfig({ key: columnName, direction });
 
-    const sortedData = [...owners].sort((a, b) => {
+    const sortedData = [...architects].sort((a, b) => {
       if (a[columnName] < b[columnName]) return direction === "asc" ? -1 : 1;
       if (a[columnName] > b[columnName]) return direction === "asc" ? 1 : -1;
       return 0;
     });
-    setOwners(sortedData);
+    setArchitects(sortedData);
   };
 
   const handleSearch = (e) => {
@@ -56,28 +57,28 @@ const Owners = () => {
     const newName = prompt("Enter new name:");
     if (newName) {
       axios
-        .put(`http://localhost:3001/owners/${id}`, { name: newName })
+        .put(`http://localhost:3001/architects/${id}`, { name: newName })
         .then(() => {
-          alert("Owner updated successfully");
-          setOwners((prev) =>
-            prev.map((owner) =>
-              owner._id === id ? { ...owner, name: newName } : owner
+          alert("Architect updated successfully");
+          setArchitects((prev) =>
+            prev.map((architect) =>
+              architect._id === id ? { ...architect, name: newName } : architect
             )
           );
         })
         .catch((err) => {
-          console.error("Error updating owner:", err);
-          alert("Failed to update owner");
+          console.error("Error updating architect:", err);
+          alert("Failed to update architect");
         });
     }
   };
 
   const handleBuildingSearch = (id) => {
     setBuildings([]);
-    setSelectedOwner(owners.find((owner) => owner._id === id));
+    setSelectedArchitect(architects.find((architect) => architect._id === id));
 
     axios
-      .get(`http://localhost:3001/owners/${id}/buildings`)
+      .get(`http://localhost:3001/architects/${id}/buildings`)
       .then((res) => {
         setBuildings(res.data); // Assuming res.data contains building details
         setFormVisible(true);
@@ -88,8 +89,8 @@ const Owners = () => {
       });
   };
 
-  const filteredOwners = owners.filter((owner) =>
-    Object.values(owner)
+  const filteredArchitects = architects.filter((architect) =>
+    Object.values(architect)
       .join(" ")
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
@@ -97,17 +98,17 @@ const Owners = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentOwners = filteredOwners.slice(
+  const currentArchitects = filteredArchitects.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  if (showAddOwner) {
+  if (showAddArchitect) {
     return (
       <div className="table-container">
-        {showAddOwner && <AddOwner />}
+        {showAddArchitect && <AddArchitect />}
       </div>
     );
   }
@@ -116,7 +117,7 @@ const Owners = () => {
     <div className="table-container">
       {formVisible ? (
         <>
-          <h1>Buildings Related to Owner: {selectedOwner?.owner_name}</h1>
+          <h1>Buildings Related to Architect: {selectedArchitect?.architect_name}</h1>
           <table className="custom-table">
             <thead>
               <tr>
@@ -147,12 +148,12 @@ const Owners = () => {
             className="submit-button"
             onClick={() => setFormVisible(false)}
           >
-            Back to Owners
+            Back to Architects
           </button>
         </>
       ) : (
         <>
-          <h1>Owners</h1>
+          <h1>Architects</h1>
           <div className="controls">
             <input
               type="text"
@@ -163,7 +164,9 @@ const Owners = () => {
             />
             <button
               className="btn btn-primary add-button"
-              onClick={showAddOwners}
+              onClick={() => {
+                ShowAddArchitects();
+              }}
             >
               <FaPlus />
             </button>
@@ -174,28 +177,33 @@ const Owners = () => {
                 <th>
                   <AiOutlineFieldNumber />
                 </th>
-                <th onClick={() => handleSort("owner_name")}>
-                  Owner Name <BiSortAlt2 />
+                <th onClick={() => handleSort("architect_name")}>
+                  Architect Name <BiSortAlt2 />
                 </th>
+
+                <th onClick={() => handleSort("en_biography")}>
+                  English Biography <BiSortAlt2 />
+                </th>        
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {currentOwners.length > 0 ? (
-                currentOwners.map((owner, index) => (
-                  <tr key={owner._id}>
+              {currentArchitects.length > 0 ? (
+                currentArchitects.map((architect, index) => (
+                  <tr key={architect._id}>
                     <td>{indexOfFirstItem + index + 1}</td>
-                    <td>{owner.owner_name}</td>
+                        <td>{architect.architect_name}</td>
+                        <td>{architect.en_biography}</td>
                     <td>
                       <button
                         className="edit-button"
-                        onClick={() => handleEdit(owner._id)}
+                        onClick={() => handleEdit(architect._id)}
                       >
                         <FaEdit />
                       </button>
                       <button
                         className="view-button"
-                        onClick={() => handleBuildingSearch(owner._id)}
+                        onClick={() => handleBuildingSearch(architect._id)}
                       >
                         <FaEye /> View Buildings
                       </button>
@@ -204,14 +212,14 @@ const Owners = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3">No owners found.</td>
+                  <td colSpan="3">No architects found.</td>
                 </tr>
               )}
             </tbody>
           </table>
           <div className="pagination">
             {Array.from(
-              { length: Math.ceil(filteredOwners.length / itemsPerPage) },
+              { length: Math.ceil(filteredArchitects.length / itemsPerPage) },
               (_, i) => (
                 <button
                   key={i}
@@ -231,4 +239,4 @@ const Owners = () => {
   );
 };
 
-export default Owners;
+export default Architects;
