@@ -7,6 +7,7 @@ import ShowAdmins from '../Admin/ShowAllAdmins';
 import Notaries from '../DataManagement/Notaries'
 import Owners from '../DataManagement/Owners';
 import Countries from '../DataManagement/Countries';
+import ShowBuilding from '../DataManagement/ShowBuildings';
 
 function Dashboard() {
   
@@ -19,6 +20,7 @@ function Dashboard() {
     const [ShowNotaries, setShowNotaries] = useState(false);
     const [ShowOwners, setShowOwners] = useState(false);
     const [ShowCountries, setShowCountries] = useState(false);
+    const [ShowBuildings, setShowBuildings] = useState(false);
 
     // Get the logged-in admin's username from localStorage
     const username = localStorage.getItem('adminUsername') || '';
@@ -50,6 +52,7 @@ function Dashboard() {
         setShowNotaries(false)
         setShowOwners(false)
         setShowCountries(false)
+        setShowBuildings(false)
         
     }
 
@@ -60,6 +63,7 @@ function Dashboard() {
         setShowNotaries(false)
         setShowOwners(false)
         setShowCountries(false)
+        setShowBuildings(false)
     }
 
     const showAllAdmins = () => {
@@ -69,6 +73,7 @@ function Dashboard() {
         setShowNotaries(false)
         setShowOwners(false)
         setShowCountries(false)
+        setShowBuildings(false)
     }
     const ShowNotarie = () => {
         setShowNotaries(true)
@@ -77,6 +82,7 @@ function Dashboard() {
         setshowAddAdmin(false)
         setShowOwners(false)
         setShowCountries(false)
+        setShowBuildings(false)
     }
 
     const ShowAllOwners = () => {
@@ -86,6 +92,7 @@ function Dashboard() {
         setshowUpdateAdmin(false)
         setshowAddAdmin(false)
         setShowCountries(false)
+        setShowBuildings(false)
     }
 
     const ShowAllCountries = () => {
@@ -95,6 +102,17 @@ function Dashboard() {
         setshowUpdateAdmin(false)
         setshowAddAdmin(false)
         setShowCountries(true)
+        setShowBuildings(false)
+    }
+
+    const ShowAllBuildings = () => {
+        setShowOwners(false)
+        setShowNotaries(false)
+        setShowAllAdmins(false)
+        setshowUpdateAdmin(false)
+        setshowAddAdmin(false)
+        setShowCountries(false)
+        setShowBuildings(true)
     }
 
     const HideAll = () => {
@@ -104,6 +122,7 @@ function Dashboard() {
         setShowNotaries(false)
         setShowOwners(false)
         setShowCountries(false)
+        setShowBuildings(false)
     }
 
     return (
@@ -153,7 +172,10 @@ function Dashboard() {
                         </a>
                         {dataDropdown && (
                             <ul className="dropdown">
-                                <li>
+                                <li onClick={() => {
+                                    ShowAllBuildings();
+                                    handleSelection("building");
+                                }}>
                                     <a className="nav-Links">Buildings</a>
                                 </li>
                                 <li>
@@ -213,6 +235,7 @@ function Dashboard() {
             {ShowNotaries && <Notaries />}
             {ShowOwners && <Owners />}
             {ShowCountries && <Countries />}
+            {ShowBuildings && <ShowBuilding />}
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import "./DataPage.css";
@@ -11,86 +11,82 @@ const Notaries = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(7);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [buildings, setBuildings] = useState([]);
+  const [formVisible, setFormVisible] = useState(false);
+  const [selectedNotary, setSelectedNotary] = useState(null);
 
+  // Fetch notaries on component mount
   useEffect(() => {
-        // Fetch all admins from the server
-        axios.get('http://localhost:3001/notaries') // Adjust URL if needed
-            .then(res => {
-                setNotaries(res.data); // Save the fetched data in the state
-            })
-            .catch(err => {
-                console.error("Error fetching Notaries:", err);
-            });
-    }, []);
+    axios
+      .get("http://localhost:3001/notaries") // Adjust URL if needed
+      .then((res) => {
+        setNotaries(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching Notaries:", err);
+      });
+  }, []);
 
   const handleSort = (columnName) => {
-    console.log("Sorting column:", columnName);
-    let direction = "asc";
-    if (sortConfig.key === columnName && sortConfig.direction === "asc") {
-        direction = "desc";
-    }
+    const direction =
+      sortConfig.key === columnName && sortConfig.direction === "asc"
+        ? "desc"
+        : "asc";
     setSortConfig({ key: columnName, direction });
 
     const sortedData = [...notaries].sort((a, b) => {
-        console.log("Comparing:", a[columnName], b[columnName]);
-        if (a[columnName] < b[columnName]) return direction === "asc" ? -1 : 1;
-        if (a[columnName] > b[columnName]) return direction === "asc" ? 1 : -1;
-        return 0;
+      if (a[columnName] < b[columnName]) return direction === "asc" ? -1 : 1;
+      if (a[columnName] > b[columnName]) return direction === "asc" ? 1 : -1;
+      return 0;
     });
-    console.log("Sorted Data:", sortedData);
     setNotaries(sortedData);
-};
+  };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-   const handleEdit = (id) => {
-    const newName = prompt('Enter new name:');
-  
+  const handleEdit = (id) => {
+    const newName = prompt("Enter new name:");
     if (newName) {
-      axios.put(`http://localhost:3001/notaries/${id}`, { name: newName })
-      .then((res) => {
-        alert('Notary updated successfully');
-        setNotaries(
-          notaries.map((notary) =>
-            notary._id === id ? { ...notary, name: newName } : notary
-          )
-        );
-      })
-      .catch((err) => {
-        console.error('Error updating notary:', err);
-        alert('Failed to update notary');
-      });
-    
-    }
-  };
-
-  
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this notary?')) {
       axios
-      
-        .delete(`http://localhost:3001/notaries/${id}`)
-        .then((res) => {
-          console.log("Received ID for deletion:", id);
-          console.log('Attempting to delete notary with ID:', id);
-          alert('Notary deleted successfully');
-          setNotaries(notaries.filter((notary) => notary._id !== id)); // Update UI
+        .put(`http://localhost:3001/notaries/${id}`, { name: newName })
+        .then(() => {
+          alert("Notary updated successfully");
+          setNotaries((prev) =>
+            prev.map((notary) =>
+              notary._id === id ? { ...notary, name: newName } : notary
+            )
+          );
         })
         .catch((err) => {
-          console.log('Attempting to delete notary with ID:', id);
-          console.error('Error deleting notary:', err);
-          alert('Failed to delete notary');
+          console.error("Error updating notary:", err);
+          alert("Failed to update notary");
         });
     }
   };
-  
+
+  const handleBuildingSearch = (id) => {
+    setBuildings([]);
+    setSelectedNotary(notaries.find((notary) => notary._id === id));
+
+    axios
+      .get(`http://localhost:3001/notaries/${id}/buildings`)
+      .then((res) => {
+        setBuildings(res.data); // Assuming res.data contains building details
+        setFormVisible(true);
+      })
+      .catch((err) => {
+        console.error("Error fetching buildings:", err);
+        alert("Failed to fetch buildings.");
+      });
+  };
 
   const filteredNotaries = notaries.filter((notary) =>
-    Object.values(notary).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    Object.values(notary)
+      .join(" ")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
   );
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -104,62 +100,116 @@ const Notaries = () => {
 
   return (
     <div className="table-container">
-      <h1>Notaries</h1>
-      
-      <div className="controls">
-        <input type="text" className="form-control search-bar" placeholder="Search..." value={searchTerm}  onChange={handleSearch} />
-        <button className="btn btn-primary add-button"><FaPlus /> </button>
-      </div>
-
-      <table className="custom-table">
-          <thead>
-          <tr>
-            <th><AiOutlineFieldNumber /></th>
-            <th onClick={() => handleSort("num")}>
-              Notary ID <span><BiSortAlt2 /></span>
-            </th>
-            <th onClick={() => handleSort("name")}>
-              Notary Name <span><BiSortAlt2 /></span>
-            </th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-         <tbody>
-          {notaries.length > 0 ? (
-            currentNotaries.map((notary, index) => (
-              <tr key={notary._id}>
-                <td>{indexOfFirstItem + index + 1}</td>
-                <td>{notary._id}</td>
-                <td>{notary.name}</td>
-                <td>
-                <button className="edit-button" onClick={() => handleEdit(notary._id)}><FaEdit /> </button>
-                <button className="delete-button" onClick={() => handleDelete(notary._id)}><FaTrash /></button>
-                </td>
+      {formVisible ? (
+        <>
+          <h1>Buildings Related to Notary: {selectedNotary?.notary_name}</h1>
+          <table className="custom-table">
+            <thead>
+              <tr>
+                <th>
+                  <AiOutlineFieldNumber />
+                </th>
+                <th>
+                  Building Name <BiSortAlt2 />
+                </th>
               </tr>
-            ))
-            ) : (
-            <tr>
-            <td colSpan="4">No notaries found.</td>
-            </tr>
-            )}
-        </tbody>
-
-      </table>
-      <div className="pagination">
-        {Array.from(
-          { length: Math.ceil(filteredNotaries.length / itemsPerPage) },
-          (_, i) => (
-            <button
-              key={i + 1}
-              className={`page-button ${currentPage === i + 1 ? "active" : ""}`}
-              onClick={() => paginate(i + 1)}
-            >
-              {i + 1}
+            </thead>
+            <tbody>
+              {buildings.length > 0 ? (
+                buildings.map((building, index) => (
+                  <tr key={building.building_id}>
+                    <td>{index + 1}</td>
+                    <td>{building.building_name}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="2">No buildings found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setFormVisible(false)}
+          >
+            Back to Notaries
+          </button>
+        </>
+      ) : (
+        <>
+          <h1>Notaries</h1>
+          <div className="controls">
+            <input
+              type="text"
+              className="form-control search-bar"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <button className="btn btn-primary add-button">
+              <FaPlus /> Add Notary
             </button>
-          )
-        )}
-      </div>
+          </div>
+          <table className="custom-table">
+            <thead>
+              <tr>
+                <th>
+                  <AiOutlineFieldNumber />
+                </th>
+                <th onClick={() => handleSort("notary_name")}>
+                  Notary Name <BiSortAlt2 />
+                </th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentNotaries.length > 0 ? (
+                currentNotaries.map((notary, index) => (
+                  <tr key={notary._id}>
+                    <td>{indexOfFirstItem + index + 1}</td>
+                    <td>{notary.notary_name}</td>
+                    <td>
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEdit(notary._id)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="view-button"
+                        onClick={() => handleBuildingSearch(notary._id)}
+                      >
+                        <FaEye /> View Buildings
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3">No notaries found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <div className="pagination">
+            {Array.from(
+              { length: Math.ceil(filteredNotaries.length / itemsPerPage) },
+              (_, i) => (
+                <button
+                  key={i}
+                  className={`page-button ${
+                    currentPage === i + 1 ? "active" : ""
+                  }`}
+                  onClick={() => paginate(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              )
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -19,7 +19,9 @@ const {
     Buildings_Owners_Model,
     Tenants_Model,
     Buildings_Tenants_Model,
-    Buildings_Usage_Model
+    Buildings_Usage_Model,
+    Buildings_Status_Model,
+    Images_Model
 
  } = models;
 
@@ -290,16 +292,29 @@ app.get("/status", async (req, res) => {
 
 // Add building testt
 app.post("/AddBuilding", async (req, res) => {
-  const { building_name,area, ar_description,en_description,thsLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id} = req.body;
+  const { building_name,area, ar_description,en_description,thsLink, frontImageLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id} = req.body;
 
     try {
-    const newBuilding = await Buildings_Model.create({building_name,area, ar_description,en_description,thsLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id});
+    const newBuilding = await Buildings_Model.create({building_name,area, ar_description,en_description,thsLink, frontImageLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id});
    
     res.status(201).json({ message: "Building added successfully!", buildings: newBuilding});
   } catch (error) {
     res.status(500).json({ error: "Error adding building" });
   }
 });
+
+// fetch all Buildings
+app.get("/get-buildings", async (req, res) => {
+    try {
+        const building = await Buildings_Model.find(); 
+        res.status(200).json(building);
+    } catch (error) {
+        console.error("Error fetching building:", error); // Debugging
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
 
 
 // Add Address testt
@@ -314,6 +329,205 @@ app.post("/AddAddress", async (req, res) => {
     res.status(500).json({ error: "Error adding Address" });
   }
 });
+
+// Add buildings_Usages
+app.post("/add-building-usage", async (req, res) => {
+  const { building_id, usage_id, type } = req.body;
+
+  // Validate the data
+  if (!building_id || !usage_id || !type) {
+    return res.status(400).json({ message: "Missing required fields." });
+  }
+
+  try {
+    // Create and save the new usage document
+    const newUsage = new Buildings_Usage_Model({ building_id,usage_id,type, });
+    await newUsage.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({
+      message: "Building usage added successfully!",
+      buildings_usages: newUsage,
+    });
+  } catch (error) {
+    console.error("Error adding building usage:", error);
+    res.status(500).json({ message: "An error occurred while adding usage." });
+  }
+});
+
+//Add Buildings_status
+app.post("/add-building-status", async (req, res) => {
+  const { building_id, status_id } = req.body;
+
+  try {
+    // Create and save the new status document
+    const newStatus = new Buildings_Status_Model({ building_id, status_id});
+    await newStatus.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({
+      message: "Building usage added successfully!",
+      buildings_status: newStatus,
+    });
+  } catch (error) {
+    console.error("Error adding building status:", error);
+    res.status(500).json({ message: "An error occurred while adding status." });
+  }
+});
+
+
+
+//Add Buildings_Architects
+app.post("/add-buildings-architects", async (req, res) => {
+  const { building_id, architect_id } = req.body;
+
+  try {
+    // Create and save the new architects document
+    const newArchitects = new Buildings_Architects_Model({ building_id, architect_id});
+    await newArchitects.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "Buildings_Architects added successfully!",buildings_architects: newArchitects,});
+  } catch (error) {
+    console.error("Error adding Buildings_Architects:", error);
+    res.status(500).json({ message: "An error occurred while adding Buildings_Architects." });
+  }
+});
+
+
+
+//Add Buildings_Notaries
+app.post("/add-buildings-notaries", async (req, res) => {
+  const { building_id, notary_id, building_name } = req.body;
+
+  try {
+    // Create and save the new notary document
+    const newNotary = new Buildings_Notaries_Model({ building_id, notary_id, building_name});
+    await newNotary.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "Buildings_Notaries added successfully!", buildings_notaries: newNotary,});
+  } catch (error) {
+    console.error("Error adding Buildings_Notaries:", error);
+    res.status(500).json({ message: "An error occurred while adding Buildings_Notaries." });
+  }
+});
+
+//Add Buildings_Owners
+app.post("/add-buildings-owners", async (req, res) => {
+  const { building_id, owner_id } = req.body;
+
+  try {
+    // Create and save the new Owners document
+    const newOwners = new Buildings_Owners_Model({ building_id, owner_id});
+    await newOwners.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "Buildings_Owners added successfully!", buildings_owners: newOwners,});
+  } catch (error) {
+    console.error("Error adding Buildings_Owners:", error);
+    res.status(500).json({ message: "An error occurred while adding Buildings_Owners." });
+  }
+});
+
+
+//Add Buildings_Tenant
+app.post("/add-buildings-tenants", async (req, res) => {
+  const { building_id, tenant_id } = req.body;
+
+  try {
+    // Create and save the new Tenant document
+    const newTenant = new Buildings_Tenants_Model({ building_id, tenant_id});
+    await newTenant.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "buildings_tenants added successfully!", buildings_tenants: newTenant,});
+  } catch (error) {
+    console.error("Error adding buildings_tenants:", error);
+    res.status(500).json({ message: "An error occurred while adding buildings_tenants." });
+  }
+});
+
+
+//Add Images
+app.post("/add-images", async (req, res) => {
+  const { building_id, description, image } = req.body;
+
+  try {
+    // Create and save the new images document
+    const newImages = new Images_Model({ building_id, description, image});
+    await newImages.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "images added successfully!", images: newImages,});
+  } catch (error) {
+    console.error("Error adding images:", error);
+    res.status(500).json({ message: "An error occurred while adding images." });
+  }
+});
+
+
+/* app.get('/notaries/:id/buildings', async (req, res) => { 
+  const { id } = req.params;
+  try {
+    console.log("Fetching building IDs for notary:", id);
+
+    // Find all entries in Buildings_Notaries_Model for the given notary_id
+    const notaryBuildings = await Buildings_Notaries_Model.find({ notary_id: id });
+
+    console.log("Raw building data found:", notaryBuildings);
+
+    if (notaryBuildings.length === 0) {
+      return res.status(404).json({ message: 'No buildings found for this notary.' });
+    }
+
+    // Use a while loop to extract building IDs into an array
+    const buildingIds = [];
+    let i = 0;
+
+    while (i < notaryBuildings.length) {
+      buildingIds.push(notaryBuildings[i].building_id);
+      i++;
+    }
+
+    console.log("Building IDs array:", buildingIds);
+
+    res.status(200).json(buildingIds); // Return the array of building IDs
+  } catch (error) {
+    console.error("Error fetching building IDs:", error);
+    res.status(500).json({ error: 'Failed to fetch building IDs' });
+  }
+});*/
+
+
+app.get('/notaries/:id/buildings', async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log("Fetching buildings for notary:", id);
+    const notaryBuildings = await Buildings_Notaries_Model.find({ notary_id: id })
+      .populate('building_id');
+
+    console.log("Notary buildings found:", notaryBuildings);
+
+    const buildingsWithDetails = notaryBuildings.map(buildings => {
+      if (!buildings.building_id) {
+        console.warn("Missing building details for:", buildings);
+        return null; // Handle missing data
+      }
+      return {
+        building_id: buildings.building_id._id,
+        building_name: buildings.building_id.building_name,
+      };
+    }).filter(Boolean); // Remove null entries
+
+    res.status(200).json(buildingsWithDetails);
+  } catch (error) {
+    console.error("Error fetching buildings:", error);
+    res.status(500).json({ error: 'Failed to fetch buildings' });
+  }
+});
+
+
 
 
 // Server setup

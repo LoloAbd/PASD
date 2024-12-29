@@ -100,9 +100,9 @@ const Buildings_Usage_Schema = new mongoose.Schema({
         ref: "usage",
         required: true
     },
-    type: { type: String,  enum: ["original", "current"]}
+    type: { type: String}
 });
-const Buildings_Usage_Model = mongoose.model("buildings_usage", Buildings_Usage_Schema);
+const Buildings_Usage_Model = mongoose.model("buildings_usages", Buildings_Usage_Schema);
 
 
 
@@ -148,7 +148,8 @@ const Buildings_Notaries_Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "notaries",
         required: true
-    }
+    },
+   building_name: { type: String}
 });
 const Buildings_Notaries_Model = mongoose.model("buildings_notaries", Buildings_Notaries_Schema);
 

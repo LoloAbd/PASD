@@ -71,10 +71,10 @@ textarea {
 
 button.submit-button {
   width: 100%; /* Full width for small screens */
-  max-width: 250px; /* Limit max width */
+  max-width: 170px; /* Limit max width */
   margin-top: 30px;
-  padding: 12px 24px;
-  font-size: 1.2rem;
+  padding: 12px 12px;
+  font-size: 1rem;
   background-color: black;
   color: white;
   border: none;
