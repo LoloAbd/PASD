@@ -8,6 +8,8 @@ import Notaries from '../DataManagement/Notary/Notaries'
 import Owners from '../DataManagement/Owners/Owners';
 import ShowBuilding from '../DataManagement/Buildings/ShowBuildings';
 import Architects from '../DataManagement/Architects/Architects';
+import Cities from '../DataManagement/City/Cities';
+import Tenant from '../DataManagement/Tenant/Tenant'
 
 function Dashboard() {
   
@@ -21,6 +23,8 @@ function Dashboard() {
     const [ShowOwners, setShowOwners] = useState(false);
     const [ShowBuildings, setShowBuildings] = useState(false);
     const [ShowArchitects, setShowArchitects] = useState(false);
+    const [ShowCities, setShowCities] = useState(false);
+    const [ShowTenant, setShowTenant] = useState(false);
 
     // Get the logged-in admin's username from localStorage
     const username = localStorage.getItem('adminUsername') || '';
@@ -53,6 +57,8 @@ function Dashboard() {
         setShowOwners(false)
         setShowBuildings(false)
         setShowArchitects(false)
+        setShowCities(false)
+        setShowTenant(false)
         
     }
 
@@ -64,6 +70,8 @@ function Dashboard() {
         setShowOwners(false)
         setShowBuildings(false)
         setShowArchitects(false)
+        setShowCities(false)
+        setShowTenant(false)
     }
 
     const showAllAdmins = () => {
@@ -74,6 +82,8 @@ function Dashboard() {
         setShowOwners(false)
         setShowBuildings(false)
         setShowArchitects(false)
+        setShowCities(false)
+        setShowTenant(false)
     }
     const ShowNotarie = () => {
         setShowNotaries(true)
@@ -83,6 +93,8 @@ function Dashboard() {
         setShowOwners(false)
         setShowBuildings(false)
         setShowArchitects(false)
+        setShowCities(false)
+        setShowTenant(false)
     }
 
     const ShowAllOwners = () => {
@@ -93,6 +105,8 @@ function Dashboard() {
         setshowAddAdmin(false)
         setShowBuildings(false)
         setShowArchitects(false)
+        setShowCities(false)
+        setShowTenant(false)
     }
     
     const ShowAllArchitects = () => {
@@ -103,6 +117,8 @@ function Dashboard() {
         setshowAddAdmin(false)
         setShowBuildings(false)
         setShowArchitects(true)
+        setShowCities(false)
+        setShowTenant(false)
     }
 
     const ShowAllBuildings = () => {
@@ -113,7 +129,34 @@ function Dashboard() {
         setshowAddAdmin(false)
         setShowBuildings(true)
         setShowArchitects(false)
+        setShowCities(false)
+        setShowTenant(false)
     }
+
+    const ShowAllCities = () => {
+        setShowOwners(false)
+        setShowNotaries(false)
+        setShowAllAdmins(false)
+        setshowUpdateAdmin(false)
+        setshowAddAdmin(false)
+        setShowBuildings(false)
+        setShowArchitects(false)
+        setShowCities(true)
+        setShowTenant(false)
+    }
+
+    const ShowAllTenant = () => {
+        setShowOwners(false)
+        setShowNotaries(false)
+        setShowAllAdmins(false)
+        setshowUpdateAdmin(false)
+        setshowAddAdmin(false)
+        setShowBuildings(false)
+        setShowArchitects(false)
+        setShowCities(false)
+        setShowTenant(true)
+    }
+
 
     const HideAll = () => {
         setShowAllAdmins(false)
@@ -123,6 +166,8 @@ function Dashboard() {
         setShowOwners(false)
         setShowBuildings(false)
         setShowArchitects(false)
+        setShowCities(false)
+        setShowTenant(false)
     }
 
     return (
@@ -185,7 +230,10 @@ function Dashboard() {
                                 }}>
                                     <a className="nav-Links">Architects</a>
                                 </li>
-                                <li>
+                                <li onClick={() => {
+                                    ShowAllTenant();
+                                    handleSelection("owners");
+                                }}>
                                     <a className="nav-Links">Tenant</a>
                                 </li>
                                 <li onClick={() => {
@@ -200,7 +248,10 @@ function Dashboard() {
                                 }}>
                                     <a className="nav-Links">Notaries</a>
                                 </li>
-                                <li>
+                                <li onClick={() => {
+                                    ShowAllCities();
+                                    handleSelection("cities");
+                                }}>
                                     <a className="nav-Links">Cities</a>
                                 </li>
                             </ul>
@@ -222,6 +273,8 @@ function Dashboard() {
             {ShowOwners && <Owners />}
             {ShowBuildings && <ShowBuilding />}
             {ShowArchitects && <Architects />}
+            {ShowCities && <Cities />}
+            {ShowTenant && <Tenant />}
         </div>
     );
 }

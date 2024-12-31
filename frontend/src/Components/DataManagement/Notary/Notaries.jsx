@@ -35,10 +35,10 @@ const Notaries = () => {
       });
   };
 
-  // Fetch notaries on component mount
+  // Fetch notaries
   useEffect(() => {
     axios
-      .get("http://localhost:3001/notaries") // Adjust URL if needed
+      .get("http://localhost:3001/notaries")
       .then((res) => {
         setNotaries(res.data);
       })

@@ -2,9 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./AddBuildings.css";
 import ReactSelect from "react-select";
+import { useNavigate } from 'react-router-dom';
+
 
 
 const AddBuildings = () => {
+
+  const handleBack = async (e) => { }
 
 
   const [building_name, setBuildingName] = useState("");
@@ -235,6 +239,7 @@ const AddBuildings = () => {
         }
 
         alert("Building and related data added successfully!");
+
       }
     }
   } catch (error) {
@@ -328,8 +333,15 @@ const AddBuildings = () => {
 
 
 
-  const getFile = (event) => {
-    setFile(URL.createObjectURL(event.target.files[0])); // Save the file object
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFile(reader.result); // Set Base64 string
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
     
@@ -458,7 +470,7 @@ const AddBuildings = () => {
 
             <label className="add-building-label">Front Image Link</label>
             <div className="form-group">
-              <input type="file" name="frontImageLink" onChange={getFile} />
+              <input type="file" name="frontImageLink" accept=".png, .jpg, .jpeg, .svg" onChange={handleFileChange} />
             </div>
             
           </div>
@@ -563,7 +575,7 @@ const AddBuildings = () => {
               <textarea name="en_description" onChange={(e) => setEn_description(e.target.value)} />
             </div>
 
-             <button type="submit" className="submit-button">Add Building</button>
+            <button type="submit" className="submit-button">Add Building</button>
           </div>
         </div>
       </form>

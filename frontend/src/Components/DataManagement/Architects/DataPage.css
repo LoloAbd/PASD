@@ -11,7 +11,7 @@
 
 
 .table-container h1 {
-    /*margin-top: 20px;*/ 
+    margin-top: 30px;
     font-size: 36px;
     color: var(--black);
     margin-bottom: 10px;
@@ -97,7 +97,7 @@
 }
 
 .edit-button:hover {
-  background-color: #e0a800;
+  background-color: #000000;
 }
 
 .view-button {
@@ -105,7 +105,7 @@
 }
 
 .view-button:hover {
-  background-color: #091ce7; 
+  background-color: #000000; 
 }
 
 .pagination {
@@ -137,3 +137,14 @@ td{
   background-color: #333333;
   color: white;
 }
+
+.view-images{
+  width: 30px;
+  height: 30px;
+  background-color: #d49efb; 
+}
+
+.view-images:hover{
+  background-color: #ffffff; 
+}
+

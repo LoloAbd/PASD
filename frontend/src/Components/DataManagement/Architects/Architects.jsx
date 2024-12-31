@@ -10,7 +10,7 @@ const Architects = () => {
   const [architects, setArchitects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(7);
+  const [itemsPerPage] = useState(5);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [buildings, setBuildings] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
@@ -20,6 +20,18 @@ const Architects = () => {
   const [architect_image, setFile] = useState("");
   const [en_biography, seten_biography] = useState("");
   const [ar_biography, setar_biography] = useState("");
+  
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFile(reader.result); // Set Base64 string
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
 
   const handleSubmit = (e) => {
@@ -35,6 +47,15 @@ const Architects = () => {
       .catch((err) => {
         console.error("Error adding architect:", err);
         alert("Failed to add architect");
+      });
+    
+    
+    axios.get("http://localhost:3001/architects") // Adjust URL if needed
+      .then((res) => {
+        setArchitects(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching architects:", err);
       });
   };
 
@@ -121,14 +142,11 @@ const Architects = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const getFile = (event) => {
-    setFile(URL.createObjectURL(event.target.files[0])); // Save the file object
-  };
 
   if (addArchitect) {
     return (
       <div className='AddAdminHome'>
-        <div className="AddAdminWrapper">
+        <div className="AddAdminWrapper" style={{height: "550px"}}>
           <div className="AddAdminFormBox">
             <h2 className="AddAdminTitle">Add New Architect</h2>
             <form onSubmit={handleSubmit}>
@@ -141,7 +159,7 @@ const Architects = () => {
 
               <label className="add-building-label">Architect Image</label>
               <div className="form-group">
-                <input type="file" name="architect_image" onChange={getFile} />
+                <input type="file" accept=".png, .jpg, .jpeg, .svg"  name="architect_image" onChange={handleFileChange} />
                 </div>
               
               <label className="add-building-label" >Arabic Biography</label>
@@ -200,7 +218,7 @@ const Architects = () => {
               <input type="text" className="form-control search-bar" placeholder="Search..." value={searchTerm} onChange={handleSearch} />
               <button className="btn btn-primary add-button" onClick={() => { setAddArchitect(true); }}> <FaPlus /></button>
             </div>
-            <table className="custom-table">
+            <table className="custom-table" style={{ width: "1000px" }}>
               <thead>
                 <tr>
                   <th>

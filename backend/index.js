@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const AdminModel = require('./models/Admin');
+const multer = require('multer')
 const models = require('./models/Data');
 const {
     Status_Model,
@@ -25,9 +26,12 @@ const {
 
  } = models;
 
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 const app = express();
  
-// Middleware
+// Middleware with increased limit
 app.use(express.json());
 app.use(cors());
 
@@ -198,6 +202,38 @@ app.get("/cities", async (req, res) => {
   }
 });
 
+
+app.get("/images", async (req, res) => {
+try {
+      const images = await Images_Model.find();
+      res.status(200).json(images);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching images" });
+  }
+});
+
+
+// Fetch Cities
+app.get("/get-cities", async (req, res) => {
+  try {
+      const cities = await Cities_Model.find();
+      res.status(200).json(cities);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching cities" });
+  }
+});
+
+
+// Fetch Addresses
+app.get("/get-addresses", async (req, res) => {
+  try {
+      const addresses = await Addresses_Model.find();
+      res.status(200).json(addresses);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching addresses" });
+  }
+});
+
 app.delete('/notaries/:id', async (req, res) => {
     const id = req.params.id;
     console.log(id)
@@ -221,9 +257,7 @@ app.delete('/notaries/:id', async (req, res) => {
 
 app.put('/notaries/:id', async (req, res) => {
     const { id } = req.params;
-    const update = req.body;
-    console.log('ID:', req.params.id);
-    console.log('Update Data:', req.body);
+  const update = req.body;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: 'Invalid ID format' });
     }
@@ -619,6 +653,259 @@ app.get('/owners/:id/buildings', async (req, res) => {
 });
 
 
+app.get('/tenants/:id/buildings', async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log("Fetching buildings for tenant:", id);
+    const tenantBuildings = await Buildings_Tenants_Model.find({ tenant_id: id })
+      .populate('building_id');
+
+    console.log("Tenant buildings found:", tenantBuildings);
+
+    const buildingsWithDetails = tenantBuildings.map(building => {
+      if (!building.building_id) {
+        console.warn("Missing building details for:", building);
+        return null; // Handle missing data
+      }
+      return {
+        building_id: building.building_id._id,
+        building_name: building.building_id.building_name,
+      };
+    }).filter(Boolean); // Remove null entries
+
+    res.status(200).json(buildingsWithDetails);
+  } catch (error) {
+    console.error("Error fetching buildings:", error);
+    res.status(500).json({ error: 'Failed to fetch buildings' });
+  }
+});
+
+
+
+
+app.get('/buildings/:id/status', async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log("Fetching statuses for building:", id);
+
+    // Find all statuses related to the given building_id
+    const statusBuildings = await Buildings_Status_Model.find({ building_id: id })
+      .populate('status_id', 'status_name _id'); // Populate only required fields from the Status collection
+
+    console.log("Status buildings found:", statusBuildings);
+
+    // Map statuses to include the necessary details
+    const statusWithDetails = statusBuildings.map(status => {
+      if (!status.status_id) {
+        console.warn("Missing status details for:", status);
+        return null; // Handle missing data
+      }
+      return {
+        status_id: status.status_id._id, // Use the populated status data
+        status_name: status.status_id.status_name,
+      };
+    }).filter(Boolean); // Remove null entries caused by missing data
+
+    // Send the response
+    res.status(200).json(statusWithDetails);
+
+  } catch (error) {
+    console.error("Error fetching building statuses:", error);
+    res.status(500).json({ error: 'Failed to fetch building statuses' });
+  }
+});
+
+
+app.get('/buildings/:id/usage', async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log("Fetching usages for building:", id);
+
+    // Find all usage related to the given building_id in the Buildings_Usage collection
+    const usageBuildings = await Buildings_Usage_Model.find({ building_id: id })
+      .populate('usage_id', 'use_type') // Populate the usage_id with the name (use_type) from the Usage collection
+      .select('usage_id type'); // Select usage_id and type from Buildings_Usage collection directly
+
+    console.log("Usage buildings found:", usageBuildings);
+
+    // Map usage to include the necessary details
+    const usageWithDetails = usageBuildings.map(usage => {
+      if (!usage.usage_id) {
+        console.warn("Missing usage details for:", usage);
+        return null; // Handle missing data
+      }
+      return {
+        usage_id: usage.usage_id._id, // Use the populated usage data (usage_id)
+        usage_name: usage.usage_id.use_type, // Get the use_type (name) from the populated usage_id
+        type: usage.type, // Add the type field from Buildings_Usage collection
+      };
+    }).filter(Boolean); // Remove null entries caused by missing data
+
+    // Send the response
+    res.status(200).json(usageWithDetails);
+
+  } catch (error) {
+    console.error("Error fetching building usage:", error);
+    res.status(500).json({ error: 'Failed to fetch building usage' });
+  }
+});
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// Upload route using GridFSBucket
+app.post('/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const readableStream = new Readable();
+    readableStream.push(req.file.buffer);
+    readableStream.push(null); // End the stream
+
+    const uploadStream = bucket.openUploadStream(req.file.originalname);
+    readableStream.pipe(uploadStream)
+        .on('error', (error) => {
+            console.error('Upload error:', error);
+            res.status(500).json({ error: 'Error uploading file' });
+        })
+        .on('finish', () => {
+            console.log('File uploaded successfully:', uploadStream.id);
+            res.status(200).json({ fileId: uploadStream.id, filename: req.file.originalname });
+
+
+        });
+});
+
+// Retrieve file by filename
+app.get('/image/:filename', async (req, res) => {
+    try {
+        const file = await bucket.find({ filename: req.params.filename }).toArray();
+        if (!file || file.length === 0) {
+            return res.status(404).json({ error: 'File not found' });
+        }
+
+        const downloadStream = bucket.openDownloadStreamByName(req.params.filename);
+        downloadStream.pipe(res);
+    } catch (error) {
+        console.error('Error retrieving file:', error);
+        res.status(500).json({ error: 'Error retrieving file' });
+    }
+});
+
+// Retrieve file by ObjectId
+app.get('/image/id/:id', async (req, res) => {
+    try {
+        const downloadStream = bucket.openDownloadStream(new mongoose.Types.ObjectId(req.params.id));
+        downloadStream.pipe(res);
+    } catch (error) {
+        console.error('Error retrieving file:', error);
+        res.status(500).json({ error: 'Error retrieving file by ID' });
+    }
+});
+
+// Retrieve file as Base64
+app.get('/image/base64/:filename', async (req, res) => {
+    try {
+        const file = await bucket.find({ filename: req.params.filename }).toArray();
+        if (!file || file.length === 0) {
+            return res.status(404).json({ error: 'File not found' });
+        }
+
+        const downloadStream = bucket.openDownloadStreamByName(req.params.filename);
+        let data = [];
+
+        downloadStream.on('data', (chunk) => {
+            data.push(chunk);
+        });
+
+        downloadStream.on('end', () => {
+            const buffer = Buffer.concat(data);
+            const base64 = buffer.toString('base64');
+            const mimeType = file[0].contentType;
+
+            res.send(`
+                <html>
+                    <body>
+                        <h1>Image: ${file[0].filename}</h1>
+                        <img src="data:${mimeType};base64,${base64}" alt="${file[0].filename}" />
+                    </body>
+                </html>
+            `);
+        });
+
+        downloadStream.on('error', (err) => {
+            console.error(err);
+            res.status(500).json({ error: 'Error reading file' });
+        });
+    } catch (error) {
+        console.error('Error retrieving file as Base64:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+app.get('/images-by-building/:buildingId', async (req, res) => {
+    const { building_id } = req.params;
+
+    try {
+        // Validate building existence
+        const building = await Buildings_Model.findById(building_id);
+        if (!building) {
+            return res.status(404).json({ error: 'Building not found' });
+        }
+
+        // Fetch images for the building
+        const images = await Image.find({ building_id: building_id }).select('image description');
+
+        res.json({
+            building: {
+                id: building._id,
+                name: building.building_name,
+            },
+            images,
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+});
+
+
+
+app.get('/buildings/:building_id', async (req, res) => {
+  try {
+    // Find building by building_id from the database
+    const building = await Buildings_Model.findOne({ building_id: req.params.building_id });
+
+    if (building) {
+      res.json(building);  // Return building data if found
+    } else {
+      res.status(404).json({ message: 'Building not found' });  // Return error if not found
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+app.get('/buildings/:building_id/images', async (req, res) => {
+  try {
+    // Find images related to the building by building_id from the database
+    const buildingImages = await Images_Model.find({ building_id: req.params.building_id });
+
+    if (buildingImages.length > 0) {
+      res.json(buildingImages);  // Return image data if images found
+    } else {
+      res.status(404).json({ message: 'Images not found' });  // Return error if no images are found
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
 
 
 // Server setup
