@@ -10,7 +10,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<Dashboard />}></Route>
+        <Route path='/' element={<ImageSlider />}></Route>
         <Route path='/ImageSlider' element={<ImageSlider />}></Route>
       </Routes>
     </BrowserRouter>
