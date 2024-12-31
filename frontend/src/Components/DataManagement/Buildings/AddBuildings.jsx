@@ -8,7 +8,10 @@ import { useNavigate } from 'react-router-dom';
 
 const AddBuildings = () => {
 
-  const handleBack = async (e) => { }
+ const navigate = useNavigate();
+   const Back = () => {
+         navigate('/')
+     }
 
 
   const [building_name, setBuildingName] = useState("");
@@ -579,6 +582,7 @@ const AddBuildings = () => {
           </div>
         </div>
       </form>
+      <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
     </div>
   );
 };

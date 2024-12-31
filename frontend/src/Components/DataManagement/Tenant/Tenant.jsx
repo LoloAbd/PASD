@@ -4,8 +4,15 @@ import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { GoPersonFill } from "react-icons/go";
+import { useNavigate } from "react-router-dom";
+
 
 const Tenants = () => {
+
+  const navigate = useNavigate();
+    const Back = () => {
+          navigate('/')
+      }
   const [tenants, setTenants] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -135,6 +142,7 @@ const Tenants = () => {
               </div>
               <button type="submit" className="AddAdminBtn">Add Tenant</button>
             </form>
+            <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
           </div>
         </div>
       </div>
@@ -234,7 +242,9 @@ const Tenants = () => {
             </div>
           </>
         )}
+        <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
       </div>
+      
     );
   }
 };

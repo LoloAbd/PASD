@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const ImageSlider = () => {
+    const navigate = useNavigate();
     const [images, setImages] = useState([]);
     const [buildings, setBuildings] = useState({});
     const [loading, setLoading] = useState(true);
 
+    const Back = () => {
+        navigate('/')
+    }
     useEffect(() => {
         // Fetch images and buildings concurrently
         const fetchData = async () => {
@@ -137,6 +142,20 @@ const ImageSlider = () => {
                         opacity: 1;
                         transform: translateY(0);
                     }
+                    .btn{
+                        width: 120px;
+                        height: 40px;
+                        font-size: 20px;
+                        font-weight: bold;
+                        color: black;
+                        background-color: white;
+                        border-radius: 5px;
+                    }
+                        .btn:hover{
+                            color: white;
+                            background-color: rgb(178, 50, 185);
+                            
+                        }
 
                     /* Responsive Design */
                     @media screen and (max-width: 1250px) {
@@ -172,6 +191,7 @@ const ImageSlider = () => {
                     </div>
                 </div>
             ))}
+                <button type='submit' className="btn" onClick={Back}>Home</button>
             </div>
             </>
     );

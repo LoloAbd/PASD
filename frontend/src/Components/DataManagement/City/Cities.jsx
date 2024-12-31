@@ -4,13 +4,21 @@ import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { FaLocationDot, FaTreeCity } from "react-icons/fa6";
 import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 
 const Cities = () => {
+
+  const navigate = useNavigate();
+    const Back = () => {
+          navigate('/')
+  }
+  
     const [cities, setCities] = useState([]);
     const [countries, setCountries] = useState([]); // State to hold country data
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(7);
+    const [itemsPerPage] = useState(6);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
     const [addCity, setAddCity] = useState(false);
     const [city_name, setCitieName] = useState(""); // State for city name
@@ -152,7 +160,8 @@ const Cities = () => {
                       <button type="submit" className="AddAdminBtn">
                         Add City
                       </button>
-                    </form>
+              </form>
+              <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
                   </div>
                 </div>
               </div>
@@ -227,6 +236,7 @@ const Cities = () => {
             )
           )}
         </div>
+        <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
       </div>
     );
   }

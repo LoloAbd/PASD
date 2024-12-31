@@ -3,13 +3,15 @@ import axios from "axios";
 import { FaEdit, FaPlus, FaEye } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
-import { GrGallery } from "react-icons/gr";
 import AddBuildings from "./AddBuildings";
 import { useNavigate } from "react-router-dom";
 
 const ShowBuildings = () => {
 
   const navigate = useNavigate();
+  const Back = () => {
+        navigate('/')
+    }
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,10 +46,6 @@ const ShowBuildings = () => {
       });
   };
 
-
-  const handleImagesSearch = (id) => {
-    navigate(`/ImageSlider/${id}`);
-};  
    const handleUsageSearch = (id) => {
     setUsage([]);
     setSelectedBuilding(buildings.find((building) => building._id === id));
@@ -227,8 +225,7 @@ const ShowBuildings = () => {
                 </th>
                 <th onClick={() => handleSort("building_name")}>
                   Building Name <BiSortAlt2 />
-                </th>
-                <th>Image Gallery</th>
+                </th>       
                 <th onClick={() => handleSort("documentationDate")}>
                   Documentation Date <BiSortAlt2 />
                 </th>
@@ -236,6 +233,7 @@ const ShowBuildings = () => {
                 <th>Usages</th>
                 <th>Street</th>
                 <th>City</th>
+                <th>360 View Link</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -245,7 +243,6 @@ const ShowBuildings = () => {
                   <tr key={building._id}>
                     <td>{indexOfFirstItem + index + 1}</td>
                     <td>{building.building_name}</td>
-                    <td><button className="view-images" onClick={() => handleImagesSearch(building._id)}><GrGallery /></button></td>
                     <td>{building.documentationDate}</td>
                     <td><button className="view-button" onClick={() => handleStatusSearch(building._id)}><FaEye /></button></td>
                     <td><button className="view-button"  onClick={() => handleUsageSearch(building._id)} > <FaEye /> </button></td>
@@ -266,6 +263,7 @@ const ShowBuildings = () => {
                         );
                       })()}
                     </td>
+                    <td>{building.thsLink}</td>
                     <td>
                       <button className="edit-button">
                         <FaEdit />
@@ -298,6 +296,7 @@ const ShowBuildings = () => {
           </div>
         </>
       )}
+      <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
     </div>
   );
 };

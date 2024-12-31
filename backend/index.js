@@ -236,7 +236,6 @@ app.get("/get-addresses", async (req, res) => {
 
 app.delete('/notaries/:id', async (req, res) => {
     const id = req.params.id;
-    console.log(id)
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: 'Invalid ID format' });
     }
@@ -571,15 +570,11 @@ app.post("/add-images", async (req, res) => {
 app.get('/notaries/:id/buildings', async (req, res) => {
   const { id } = req.params;
   try {
-    console.log("Fetching buildings for notary:", id);
     const notaryBuildings = await Buildings_Notaries_Model.find({ notary_id: id })
       .populate('building_id');
 
-    console.log("Notary buildings found:", notaryBuildings);
-
     const buildingsWithDetails = notaryBuildings.map(buildings => {
       if (!buildings.building_id) {
-        console.warn("Missing building details for:", buildings);
         return null; // Handle missing data
       }
       return {
@@ -599,15 +594,12 @@ app.get('/notaries/:id/buildings', async (req, res) => {
 app.get('/architects/:id/buildings', async (req, res) => {
   const { id } = req.params;
   try {
-    console.log("Fetching buildings for architect:", id);
     const architectBuildings = await Buildings_Architects_Model.find({ architect_id: id })
       .populate('building_id');
 
-    console.log("Architect buildings found:", architectBuildings);
 
     const buildingsWithDetails = architectBuildings.map(buildings => {
       if (!buildings.building_id) {
-        console.warn("Missing building details for:", buildings);
         return null; // Handle missing data
       }
       return {
@@ -628,15 +620,11 @@ app.get('/architects/:id/buildings', async (req, res) => {
 app.get('/owners/:id/buildings', async (req, res) => {
   const { id } = req.params;
   try {
-    console.log("Fetching buildings for owner:", id);
     const ownerBuildings = await Buildings_Owners_Model.find({ owner_id: id })
       .populate('building_id');
 
-    console.log("Owner buildings found:", ownerBuildings);
-
     const buildingsWithDetails = ownerBuildings.map(building => {
       if (!building.building_id) {
-        console.warn("Missing building details for:", building);
         return null; // Handle missing data
       }
       return {
@@ -656,15 +644,12 @@ app.get('/owners/:id/buildings', async (req, res) => {
 app.get('/tenants/:id/buildings', async (req, res) => {
   const { id } = req.params;
   try {
-    console.log("Fetching buildings for tenant:", id);
     const tenantBuildings = await Buildings_Tenants_Model.find({ tenant_id: id })
       .populate('building_id');
 
-    console.log("Tenant buildings found:", tenantBuildings);
 
     const buildingsWithDetails = tenantBuildings.map(building => {
       if (!building.building_id) {
-        console.warn("Missing building details for:", building);
         return null; // Handle missing data
       }
       return {
@@ -686,18 +671,15 @@ app.get('/tenants/:id/buildings', async (req, res) => {
 app.get('/buildings/:id/status', async (req, res) => {
   const { id } = req.params;
   try {
-    console.log("Fetching statuses for building:", id);
 
     // Find all statuses related to the given building_id
     const statusBuildings = await Buildings_Status_Model.find({ building_id: id })
       .populate('status_id', 'status_name _id'); // Populate only required fields from the Status collection
 
-    console.log("Status buildings found:", statusBuildings);
 
     // Map statuses to include the necessary details
     const statusWithDetails = statusBuildings.map(status => {
       if (!status.status_id) {
-        console.warn("Missing status details for:", status);
         return null; // Handle missing data
       }
       return {
@@ -719,19 +701,15 @@ app.get('/buildings/:id/status', async (req, res) => {
 app.get('/buildings/:id/usage', async (req, res) => {
   const { id } = req.params;
   try {
-    console.log("Fetching usages for building:", id);
 
     // Find all usage related to the given building_id in the Buildings_Usage collection
     const usageBuildings = await Buildings_Usage_Model.find({ building_id: id })
       .populate('usage_id', 'use_type') // Populate the usage_id with the name (use_type) from the Usage collection
       .select('usage_id type'); // Select usage_id and type from Buildings_Usage collection directly
 
-    console.log("Usage buildings found:", usageBuildings);
-
     // Map usage to include the necessary details
     const usageWithDetails = usageBuildings.map(usage => {
       if (!usage.usage_id) {
-        console.warn("Missing usage details for:", usage);
         return null; // Handle missing data
       }
       return {

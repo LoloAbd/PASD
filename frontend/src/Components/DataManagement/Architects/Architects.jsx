@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
@@ -7,6 +8,7 @@ import { GoPersonFill } from "react-icons/go";
 import './DataPage.css'
 
 const Architects = () => {
+   const navigate = useNavigate();
   const [architects, setArchitects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,6 +23,9 @@ const Architects = () => {
   const [en_biography, seten_biography] = useState("");
   const [ar_biography, setar_biography] = useState("");
   
+  const Back = () => {
+        navigate('/')
+    }
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -146,7 +151,7 @@ const Architects = () => {
   if (addArchitect) {
     return (
       <div className='AddAdminHome'>
-        <div className="AddAdminWrapper" style={{height: "550px"}}>
+        <div className="AddAdminWrapper" style={{height: "630px"}}>
           <div className="AddAdminFormBox">
             <h2 className="AddAdminTitle">Add New Architect</h2>
             <form onSubmit={handleSubmit}>
@@ -173,7 +178,9 @@ const Architects = () => {
               </div>
               <button type="submit" className="AddAdminBtn">Add Architect</button>
             </form>
+            <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
           </div>
+          
         </div>
       </div>
     );
@@ -259,7 +266,7 @@ const Architects = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="3">No architects found.</td>
+                    <td colSpan="6">No architects found.</td>
                   </tr>
                 )}
               </tbody>
@@ -282,6 +289,7 @@ const Architects = () => {
             </div>
           </>
         )}
+        <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
       </div>
     );
   }
