@@ -152,7 +152,7 @@ const Tenants = () => {
       <div className="table-container">
         {formVisible ? (
           <>
-            <h1>Buildings Related to Tenant: {selectedTenant?.tenantName}</h1>
+            <h1>Buildings Related to Tenant: {selectedTenant?.tenant_name}</h1>
             <table className="custom-table">
               <thead>
                 <tr>

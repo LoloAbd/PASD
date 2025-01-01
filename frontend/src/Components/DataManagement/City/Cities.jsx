@@ -217,7 +217,7 @@ const Cities = () => {
                     ))
                     ) : (
                     <tr>
-                     <td colSpan="3">No cities found.</td>
+                     <td colSpan="4">No cities found.</td>
                     </tr>
                 )}
             </tbody>

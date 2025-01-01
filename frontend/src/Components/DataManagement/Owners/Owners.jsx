@@ -151,7 +151,7 @@ const Owners = () => {
       <div className="table-container">
         {formVisible ? (
           <>
-            <h1>Buildings Related to Owner: {selectedOwner?.ownerName}</h1>
+            <h1>Buildings Related to Owner: {selectedOwner?.owner_name}</h1>
             <table className="custom-table">
               <thead>
                 <tr>

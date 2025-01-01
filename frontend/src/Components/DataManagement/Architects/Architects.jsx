@@ -21,7 +21,12 @@ const Architects = () => {
   const [architect_name, setArchitectName] = useState("");
   const [architect_image, setFile] = useState("");
   const [en_biography, seten_biography] = useState("");
-  const [ar_biography, setar_biography] = useState("");
+  const [isEditFormVisible, setIsEditFormVisible] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editImage, setEditImage] = useState("");
+  const [editEnBio, setEditEnBio] = useState("");
+  const [editId, setEditId] = useState(null); // To track the ID of the architect being edited
+
   
   const Back = () => {
         navigate('/')
@@ -43,7 +48,7 @@ const Architects = () => {
     e.preventDefault();
 
     // Make the API call to add a new architect
-    axios.post('http://localhost:3001/add-architect', { architect_name, architect_image, en_biography, ar_biography })
+    axios.post('http://localhost:3001/add-architect', { architect_name, architect_image, en_biography })
       .then((res) => {
         console.log(res);
         alert("Architect added successfully");
@@ -95,25 +100,64 @@ const Architects = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleEdit = (id) => {
-    const newName = prompt("Enter new name:");
-    if (newName) {
-      axios
-        .put(`http://localhost:3001/architects/${id}`, { name: newName })
-        .then(() => {
-          alert("Architect updated successfully");
-          setArchitects((prev) =>
-            prev.map((architect) =>
-              architect._id === id ? { ...architect, name: newName } : architect
-            )
-          );
-        })
-        .catch((err) => {
-          console.error("Error updating architect:", err);
-          alert("Failed to update architect");
-        });
-    }
+  const handleEdit = (architect) => {
+    // Set the selected architect's details in state
+    setEditName(architect.architect_name); // Set the name
+    setEditImage(architect.architect_image); // Set the image (URL or Base64 string)
+    setEditEnBio(architect.en_biography); // Set the English biography
+    setEditId(architect._id); // Track the ID of the architect being edited  
+    // Show the edit form
+    setIsEditFormVisible(true);
+    
   };
+  
+
+  const handleSaveChanges = (e) => {
+    e.preventDefault();
+  
+    if (!editName || !editEnBio) {
+      alert("Please fill out all required fields.");
+      return;
+    }
+  
+    const updatedData = {
+      architect_name: editName,
+      architect_image: editImage || null, // Handle empty image gracefully
+      en_biography: editEnBio,
+    };
+    console.log("Request Data:", {
+      id: editId,
+      architect_name: editName,
+      architect_image: editImage,
+      en_biography: editEnBio,
+    });
+    
+    axios
+      .put(`http://localhost:3001/architects/${editId}`, updatedData)
+      .then((response) => {
+        alert("Architect updated successfully!");
+        setArchitects((prev) =>
+          prev.map((architect) =>
+            architect._id === editId ? { ...architect, ...updatedData } : architect
+          )
+        );
+        setIsEditFormVisible(false);
+        setEditId(null);
+      })
+      .catch((err) => {
+        if (err.response) {
+          console.error("Response Error:", err.response.data);
+        } else if (err.request) {
+          console.error("Request Error:", err.request);
+        } else {
+          console.error("General Error:", err.message);
+        }
+      });
+      
+  };
+  
+  
+  
 
   const handleBuildingSearch = (id) => {
     setBuildings([]);
@@ -148,7 +192,7 @@ const Architects = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
 
-  if (addArchitect) {
+   if (addArchitect) {
     return (
       <div className='AddAdminHome'>
         <div className="AddAdminWrapper" style={{height: "630px"}}>
@@ -167,24 +211,71 @@ const Architects = () => {
                 <input type="file" accept=".png, .jpg, .jpeg, .svg"  name="architect_image" onChange={handleFileChange} />
                 </div>
               
-              <label className="add-building-label" >Arabic Biography</label>
-              <div className="form-group">
-                <textarea name="ar_biography" onChange={(e) => setar_biography(e.target.value)}/>
-              </div>
-              
               <label className="add-building-label" >English Biography</label>
               <div className="form-group">
                 <textarea name="en_biography" onChange={(e) => seten_biography(e.target.value)}/>
               </div>
               <button type="submit" className="AddAdminBtn">Add Architect</button>
             </form>
-            <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
+            <button className="AddAdminBtn" style={{width: "100px"}} onClick={() => setAddArchitect(false)}>Home</button>
           </div>
           
         </div>
       </div>
     );
-  } else if (!addArchitect) {
+   }
+   else if (isEditFormVisible) {
+     return (
+         <div className="table-container">
+          <div className="AddAdminWrapper" style={{ height: "550px" }}>
+            
+            <div className="AddAdminFormBox">
+            <h2 className="AddAdminTitle">Edit Architect</h2>
+            <form>
+              <div className="AddAdminInputBox">
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+                <label>Architect Name:</label>
+              </div>
+              <div className="AddAdminInputBox">
+                <input
+                  type="file"
+                  accept=".png, .jpg, .jpeg, .svg"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setEditImage(reader.result); // Set Base64 string
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                
+                <label>Architect Image:</label>
+              </div>
+                <label className="add-building-label" >English Biography</label>
+              <div className="form-group">
+                <textarea value={editEnBio} onChange={(e) => setEditEnBio(e.target.value)}/>
+              </div>
+              <button type="button"  className="AddAdminBtn" style={{width: "170px", marginTop: "30px"}} onClick={handleSaveChanges}>
+                Save Changes
+              </button>
+              <button className="AddAdminBtn" style={{width: "100px"}} onClick={() => setIsEditFormVisible(false)}>
+                Cancel
+              </button>
+            </form>
+          </div>
+         </div>
+       </div>
+     
+     );
+   }
+   else if (!addArchitect && !isEditFormVisible) {
     return (
       <div className="table-container">
         {formVisible ? (
@@ -238,9 +329,6 @@ const Architects = () => {
                     <th onClick={() => handleSort("en_biography")}>
                     English Biography <BiSortAlt2 />
                     </th>
-                    <th onClick={() => handleSort("ar_biography")}>
-                    Arabic Biography <BiSortAlt2 />
-                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -252,11 +340,10 @@ const Architects = () => {
                       <td>{architect.architect_name}</td>
                       <td><img src={architect.architect_image} style={{ width: "50px", height: "50px" }} /> </td>
                       <td>{architect.en_biography}</td>
-                      <td>{architect.ar_biography}</td>
                       <td>
                         <button
                           className="edit-button"
-                          onClick={() => handleEdit(architect._id)}
+                          onClick={() => handleEdit(architect)}
                         >
                           <FaEdit />
                         </button>

@@ -27,10 +27,33 @@ const {
  } = models;
 
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
 const app = express();
- 
+const { GridFsStorage } = require('multer-gridfs-storage');
+const crypto = require("crypto");
+const path = require("path");
+
+// Multer GridFS storage configuration
+const storage = new GridFsStorage({
+    url: "your-mongo-connection-string",
+    file: (req, file) => {
+        return new Promise((resolve, reject) => {
+            crypto.randomBytes(16, (err, buf) => {
+                if (err) {
+                    return reject(err);
+                }
+                const filename = buf.toString("hex") + path.extname(file.originalname);
+                const fileInfo = {
+                    filename: filename,
+                    bucketName: "uploads",
+                };
+                resolve(fileInfo);
+            });
+        });
+    },
+});
+
+ const upload = multer({ storage });
+
 // Middleware with increased limit
 app.use(express.json());
 app.use(cors());
@@ -204,13 +227,14 @@ app.get("/cities", async (req, res) => {
 
 
 app.get("/images", async (req, res) => {
-try {
-      const images = await Images_Model.find();
+  try {
+      const images = await Images_Model.find().select("building_id description image");
       res.status(200).json(images);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching images" });
+      res.status(500).json({ error: "Error fetching images" });
   }
 });
+
 
 
 // Fetch Cities
@@ -252,6 +276,49 @@ app.delete('/notaries/:id', async (req, res) => {
     }
 });
 
+app.post("/add-architect", async (req, res) => {
+  const { architect_name, architect_image, en_biography} = req.body;
+
+  try {
+    // Create and save the new architect document
+    const newArchitects = new Architects_Model({architect_name, architect_image, en_biography});
+    await newArchitects.save(); // Save to MongoDB
+
+    // Send success response
+    res.status(200).json({message: "Architects added successfully!", architects: newArchitects,});
+  } catch (error) {
+    console.error("Error adding Architects:", error);
+    res.status(500).json({ message: "An error occurred while adding Architects." });
+  }
+});
+
+app.put('/architects/:id', async (req, res) => {
+  const { id } = req.params;
+  const { architect_name, architect_image, en_biography} = req.body;
+
+  try {
+    if (!architect_name || !en_biography) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+    
+    const updatedArchitect = await Architects_Model.findByIdAndUpdate(
+      id,
+      { architect_name, architect_image, en_biography},
+      { new: true }
+    );
+
+    if (!updatedArchitect) {
+      console.error("Architect not found with ID:", id);
+      return res.status(404).json({ message: 'Architect not found' });
+    }
+
+    res.status(200).json(updatedArchitect);
+  } catch (error) {
+    console.error("Error updating architect:", error.message);
+    res.status(500).json({ message: 'Error updating architect', error: error.message });
+  }
+});
+
 
 
 app.put('/notaries/:id', async (req, res) => {
@@ -288,7 +355,7 @@ app.post("/cities", async (req, res) => {
 });
 
 // fetch all Architects
-app.get("/Architects", async (req, res) => {
+app.get("/architects", async (req, res) => {
     try {
         const Architects = await Architects_Model.find(); 
         res.status(200).json(Architects);
@@ -427,21 +494,7 @@ app.post("/add-buildings-architects", async (req, res) => {
 });
 
 //Add Architects
-app.post("/add-architect", async (req, res) => {
-  const { architect_name, architect_image, en_biography, ar_biography} = req.body;
 
-  try {
-    // Create and save the new notary document
-    const newArchitects = new Architects_Model({architect_name, architect_image, en_biography, ar_biography});
-    await newArchitects.save(); // Save to MongoDB
-
-    // Send success response
-    res.status(200).json({message: "Architects added successfully!", architects: newArchitects,});
-  } catch (error) {
-    console.error("Error adding Architects:", error);
-    res.status(500).json({ message: "An error occurred while adding Architects." });
-  }
-});
 
 
 //Add Notary
@@ -550,19 +603,25 @@ app.post("/add-tenant", async (req, res) => {
 
 
 //Add Images
-app.post("/add-images", async (req, res) => {
-  const { building_id, description, image } = req.body;
+app.post("/add-images", upload.single("image"), async (req, res) => {
+  const { building_id, description } = req.body;
 
   try {
-    // Create and save the new images document
-    const newImages = new Images_Model({ building_id, description, image});
-    await newImages.save(); // Save to MongoDB
+      // Create a new Images_Model document with GridFS metadata
+      const newImage = new Images_Model({
+          building_id,
+          description,
+          image: req.file.filename, // GridFS filename
+      });
+      await newImage.save();
 
-    // Send success response
-    res.status(200).json({message: "images added successfully!", images: newImages,});
+      res.status(201).json({
+          message: "Image uploaded and saved successfully!",
+          image: newImage,
+      });
   } catch (error) {
-    console.error("Error adding images:", error);
-    res.status(500).json({ message: "An error occurred while adding images." });
+      console.error("Error uploading image:", error);
+      res.status(500).json({ error: "An error occurred while uploading the image." });
   }
 });
 
@@ -757,20 +816,20 @@ app.post('/upload', upload.single('image'), (req, res) => {
 });
 
 // Retrieve file by filename
-app.get('/image/:filename', async (req, res) => {
-    try {
-        const file = await bucket.find({ filename: req.params.filename }).toArray();
-        if (!file || file.length === 0) {
-            return res.status(404).json({ error: 'File not found' });
-        }
+app.get("/image/:filename", async (req, res) => {
+  try {
+      const file = await bucket.find({ filename: req.params.filename }).toArray();
+      if (!file || file.length === 0) {
+          return res.status(404).json({ error: "File not found" });
+      }
 
-        const downloadStream = bucket.openDownloadStreamByName(req.params.filename);
-        downloadStream.pipe(res);
-    } catch (error) {
-        console.error('Error retrieving file:', error);
-        res.status(500).json({ error: 'Error retrieving file' });
-    }
+      bucket.openDownloadStreamByName(req.params.filename).pipe(res);
+  } catch (error) {
+      console.error("Error retrieving file:", error);
+      res.status(500).json({ error: "Error retrieving file" });
+  }
 });
+
 
 // Retrieve file by ObjectId
 app.get('/image/id/:id', async (req, res) => {
@@ -827,31 +886,32 @@ app.get('/image/base64/:filename', async (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-app.get('/images-by-building/:buildingId', async (req, res) => {
-    const { building_id } = req.params;
+app.get("/images-by-building/:buildingId", async (req, res) => {
+  const { buildingId } = req.params;
 
-    try {
-        // Validate building existence
-        const building = await Buildings_Model.findById(building_id);
-        if (!building) {
-            return res.status(404).json({ error: 'Building not found' });
-        }
+  try {
+      // Validate building existence
+      const building = await Buildings_Model.findById(buildingId);
+      if (!building) {
+          return res.status(404).json({ error: "Building not found" });
+      }
 
-        // Fetch images for the building
-        const images = await Image.find({ building_id: building_id }).select('image description');
+      // Fetch images for the building
+      const images = await Images_Model.find({ building_id: buildingId }).select("image description");
 
-        res.json({
-            building: {
-                id: building._id,
-                name: building.building_name,
-            },
-            images,
-        });
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        res.status(500).json({ error: 'An error occurred' });
-    }
+      res.json({
+          building: {
+              id: building._id,
+              name: building.building_name,
+          },
+          images,
+      });
+  } catch (error) {
+      console.error("Error fetching data:", error);
+      res.status(500).json({ error: "An error occurred" });
+  }
 });
+
 
 
 
