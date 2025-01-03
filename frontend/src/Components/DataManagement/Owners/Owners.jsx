@@ -1,17 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { GoPersonFill } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
 
 
 const Owners = () => {
-  const navigate = useNavigate();
-    const Back = () => {
-          navigate('/')
-      }
   const [owners, setOwners] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,6 +17,8 @@ const Owners = () => {
   const [selectedOwner, setSelectedOwner] = useState(null);
   const [addOwner, setAddOwner] = useState("");
   const [owner_name, setOwnerName] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editName, setEditName] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,6 +29,7 @@ const Owners = () => {
         console.log(res);
         alert("Owner added successfully");
         setAddOwner(false);
+        fetchOwners();
       })
       .catch((err) => {
         console.error("Error adding owner:", err);
@@ -39,17 +37,23 @@ const Owners = () => {
       });
   };
 
-  // Fetch owners on component mount
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/owners") // Adjust URL if needed
-      .then((res) => {
-        setOwners(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching owners:", err);
-      });
+
+  // Fetch owners
+  const fetchOwners = useCallback(async () => {
+    try {
+      const { data } = await axios.get("http://localhost:3001/owners");
+      setOwners(data);
+    } catch (error) {
+      console.error("Error fetching owners:", error);
+    }
   }, []);
+
+   useEffect(() => {
+    fetchOwners();
+   }, [fetchOwners]);
+  
+  
+  
 
   const handleSort = (columnName) => {
     const direction =
@@ -70,25 +74,35 @@ const Owners = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleEdit = (id) => {
-    const newName = prompt("Enter new name:");
-    if (newName) {
-      axios
-        .put(`http://localhost:3001/owners/${id}`, { name: newName })
-        .then(() => {
-          alert("Owner updated successfully");
-          setOwners((prev) =>
-            prev.map((owner) =>
-              owner._id === id ? { ...owner, name: newName } : owner
-            )
-          );
-        })
-        .catch((err) => {
-          console.error("Error updating owner:", err);
-          alert("Failed to update owner");
-        });
-    }
+   const handleEdit = (id, currentName) => {
+  setEditId(id);
+  setEditName(currentName);
   };
+  
+  const handleSaveEdit = (e) => {
+  e.preventDefault();
+
+  if (!editName) {
+    alert("Name cannot be empty");
+    return;
+  }
+
+  axios
+    .put(`http://localhost:3001/owners/${editId}`, { owner_name: editName })
+    .then(() => {
+      alert("Owner updated successfully");
+      setOwners((prev) =>
+        prev.map((owner) =>
+          owner._id === editId ? { ...owner, owner_name: editName } : owner
+        )
+      );
+      setEditId(null);
+    })
+    .catch((err) => {
+      console.error("Error updating owner:", err);
+      alert("Failed to update owner");
+    });
+};
 
   const handleBuildingSearch = (id) => {
     setBuildings([]);
@@ -107,11 +121,8 @@ const Owners = () => {
   };
 
   const filteredOwners = owners.filter((owner) =>
-    Object.values(owner)
-      .join(" ")
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+  owner.owner_name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -132,7 +143,7 @@ const Owners = () => {
               <div className="AddAdminInputBox">
                 <input
                   type="text"
-                  name="ownerName"
+                  name="owner_name"
                   onChange={(e) => setOwnerName(e.target.value)}
                   required
                 />
@@ -141,12 +152,40 @@ const Owners = () => {
               </div>
               <button type="submit" className="AddAdminBtn">Add Owner</button>
             </form>
-            <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
+            <button className="AddAdminBtn " style={{width: "55%"}} onClick={() => setAddOwner(false)} > Back to Owners </button>
           </div>
         </div>
       </div>
     );
-  } else if (!addOwner) {
+  }
+  
+  else if (editId) {
+    return (
+    <div className='AddAdminHome'>
+        <div className="AddAdminWrapper" style={{height: "350px"}}>
+          <div className="AddAdminFormBox">
+            <h2 className="AddAdminTitle">Edit Owner Name:</h2>
+            <form onSubmit={handleSaveEdit}>
+              <div className="AddAdminInputBox">
+                <input
+                  type="text"
+                  id="owner_name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+                </div>
+                <button type="submit" className="AddAdminBtn">Save</button>
+                <button type="button" className="AddAdminBtn " style={{width: "55%"}} onClick={() => setEditId(null)}>
+                  Cancel
+                </button>
+              </form>
+          </div>
+        </div>
+        </div>
+    );
+  }
+  
+  else if (!addOwner) {
     return (
       <div className="table-container">
         {formVisible ? (
@@ -182,7 +221,7 @@ const Owners = () => {
           </>
         ) : (
           <>
-            <h1>Owners</h1>
+            <h1 style={{marginTop: "30px"}}>Owners</h1>
             <div className="controls">
               <input type="text" className="form-control search-bar" placeholder="Search..." value={searchTerm} onChange={handleSearch} />
               <button className="btn btn-primary add-button" onClick={() => { setAddOwner(true); }}> <FaPlus /></button>
@@ -208,7 +247,7 @@ const Owners = () => {
                       <td>
                         <button
                           className="edit-button"
-                          onClick={() => handleEdit(owner._id)}
+                         onClick={() => handleEdit(owner._id, owner.owner_name)}
                         >
                           <FaEdit />
                         </button>
@@ -241,7 +280,6 @@ const Owners = () => {
             </div>
           </>
         )}
-        <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
       </div>
     );
   }

@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { FaLocationDot, FaTreeCity } from "react-icons/fa6";
-import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaEdit, FaPlus } from "react-icons/fa";
 
 
 const Cities = () => {
 
-  const navigate = useNavigate();
-    const Back = () => {
-          navigate('/')
-  }
   
     const [cities, setCities] = useState([]);
     const [countries, setCountries] = useState([]); // State to hold country data
@@ -26,17 +21,19 @@ const Cities = () => {
 
 
 
-  // Fetch notaries
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/get-cities")
-      .then((res) => {
-        setCities(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching Cities:", err);
-      });
+  // Fetch cities
+  const fetchCities = useCallback(async () => {
+    try {
+      const { data } = await axios.get("http://localhost:3001/get-cities");
+      setCities(data);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    }
   }, []);
+
+   useEffect(() => {
+    fetchCities();
+  }, [fetchCities]);
     
     
     
@@ -57,14 +54,16 @@ const Cities = () => {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:3001/cities", { country_id, city_name }); // Corrected URL
+      await axios.post("http://localhost:3001/add-cities", { country_id, city_name }); // Corrected URL
         alert("City added successfully!");
-        setAddCity(false)
+      setAddCity(false)
+      fetchCities()
       
     } catch (error) {
       console.error("Error adding city:", error);
       alert("Failed to add city. Please try again.");
-    }
+    }    
+    
     };
 
 
@@ -104,12 +103,11 @@ const Cities = () => {
   };
 
   const filteredCities = cities.filter((city) =>
-    Object.values(city)
-      .join(" ")
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+  city.city_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
+  
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentCities = filteredCities.slice(indexOfFirstItem, indexOfLastItem);
@@ -159,9 +157,9 @@ const Cities = () => {
                       {/* Submit Button */}
                       <button type="submit" className="AddAdminBtn">
                         Add City
-                      </button>
+                </button>
               </form>
-              <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
+               <button className="AddAdminBtn " style={{width: "55%"}} onClick={() => setAddCity(false)} > Back to Cities </button>
                   </div>
                 </div>
               </div>
@@ -170,7 +168,7 @@ const Cities = () => {
   } else if(!addCity) {
     return (
       <div className="table-container">
-        <h1>Cities</h1>
+        <h1 style={{marginTop: "30px"}}>Cities</h1>
         <div className="controls">
           <input
             type="text"
@@ -236,7 +234,6 @@ const Cities = () => {
             )
           )}
         </div>
-        <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
       </div>
     );
   }

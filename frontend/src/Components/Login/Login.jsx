@@ -9,29 +9,34 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-    axios.post('http://localhost:3001/login', { username, password })
-      .then((res) => {
-        if (res.data === "Success") {
-          // Save login status with expiry
-          const expiryMinutes = 60;
-          const expiryTime = Date.now() + expiryMinutes * 60 * 1000;
-          const item = { value: true, expiryTime };
-            localStorage.setItem('isLogin', JSON.stringify(item));
-            localStorage.setItem('adminUsername', username);
+  axios.post('http://localhost:3001/login', { username, password })
+    .then((res) => {
+      if (res.data === "Success") {
+        // Initialize session and timer on login
+        const expiryMinutes = 60; // 60 minutes
+        const expiryTime = Date.now() + expiryMinutes * 60 * 1000;
+        const item = { value: true, expiryTime };
 
-          onLogin(); // Notify App component about login
-        } else {
-          setErrorMessage('Invalid username or password.');
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setErrorMessage('An error occurred during login.');
-      });
-  };
+        localStorage.setItem('isLogin', JSON.stringify(item));
+        localStorage.setItem('adminUsername', username);
+        localStorage.setItem('remainingTime', 3600); // Reset to 3600 seconds
+
+        onLogin(); // Notify App component of login
+        window.location.reload(); // Refresh to reset components
+      } else {
+        setErrorMessage('Invalid username or password.');
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      setErrorMessage('An error occurred during login.');
+    });
+};
+
+  
 
   return (
     <div className="LoginHome">

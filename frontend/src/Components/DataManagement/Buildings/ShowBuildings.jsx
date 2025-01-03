@@ -3,22 +3,17 @@ import axios from "axios";
 import { FaEdit, FaPlus, FaEye } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
-import AddBuildings from "./AddBuildings";
 import { useNavigate } from "react-router-dom";
 
 const ShowBuildings = () => {
 
   const navigate = useNavigate();
-  const Back = () => {
-        navigate('/')
-    }
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(7);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [buildings, setBuildings] = useState([]);
-  const [showAddBuildings, setShowAddBuildings] = useState(false);
   const [addresses, setAddresses] = useState([]);
   const [cities, setCities] = useState([]);
   const [status, setStatus] = useState([]);
@@ -26,8 +21,8 @@ const ShowBuildings = () => {
   const [formVisible, setFormVisible] = useState(1); // 1: Buildings, 2: Status, 3: Usage
   const [selectedBuilding, setSelectedBuilding] = useState(null);
 
-  const showAllBuildings = () => {
-    setShowAddBuildings(true);
+  const AddBuilding = () => {
+    navigate('/AddBuildings');
   };
 
   const handleStatusSearch = (id) => {
@@ -121,14 +116,6 @@ const ShowBuildings = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  if (showAddBuildings) {
-    return (
-      <div className="table-container">
-        {showAddBuildings && <AddBuildings />}
-      </div>
-    );
-  }
-
   return (
     <div className="table-container">
       {formVisible === 2 && (
@@ -212,8 +199,7 @@ const ShowBuildings = () => {
             />
             <button
               className="btn btn-primary add-button"
-              onClick={showAllBuildings}
-            >
+              onClick={AddBuilding}>
               <FaPlus />
             </button>
           </div>
@@ -296,7 +282,6 @@ const ShowBuildings = () => {
           </div>
         </>
       )}
-      <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
     </div>
   );
 };

@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { GoPersonFill } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
-
 
 const Tenants = () => {
 
-  const navigate = useNavigate();
-    const Back = () => {
-          navigate('/')
-      }
   const [tenants, setTenants] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,6 +17,8 @@ const Tenants = () => {
   const [selectedTenant, setSelectedTenant] = useState(null);
   const [addTenant, setAddTenant] = useState("");
   const [tenant_name, setTenantName] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editName, setEditName] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -33,6 +29,7 @@ const Tenants = () => {
         console.log(res);
         alert("Tenant added successfully");
         setAddTenant(false);
+        fetchTenants();
       })
       .catch((err) => {
         console.error("Error adding tenant:", err);
@@ -40,17 +37,20 @@ const Tenants = () => {
       });
   };
 
-  // Fetch tenants on component mount
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/tenants") // Adjust URL if needed
-      .then((res) => {
-        setTenants(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching tenants:", err);
-      });
+ // Fetch owners
+  const fetchTenants = useCallback(async () => {
+    try {
+      const { data } = await axios.get("http://localhost:3001/tenants");
+      setTenants(data);
+    } catch (error) {
+      console.error("Error fetching owners:", error);
+    }
   }, []);
+
+   useEffect(() => {
+    fetchTenants();
+   }, [fetchTenants]);
+  
 
   const handleSort = (columnName) => {
     const direction =
@@ -71,25 +71,36 @@ const Tenants = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleEdit = (id) => {
-    const newName = prompt("Enter new name:");
-    if (newName) {
-      axios
-        .put(`http://localhost:3001/tenants/${id}`, { name: newName })
-        .then(() => {
-          alert("Tenant updated successfully");
-          setTenants((prev) =>
-            prev.map((tenant) =>
-              tenant._id === id ? { ...tenant, name: newName } : tenant
-            )
-          );
-        })
-        .catch((err) => {
-          console.error("Error updating tenant:", err);
-          alert("Failed to update tenant");
-        });
-    }
+  const handleEdit = (id, currentName) => {
+  setEditId(id);
+  setEditName(currentName);
   };
+  
+  const handleSaveEdit = (e) => {
+  e.preventDefault();
+
+  if (!editName) {
+    alert("Name cannot be empty");
+    return;
+  }
+
+  axios
+    .put(`http://localhost:3001/tenants/${editId}`, { tenant_name: editName })
+    .then(() => {
+      alert("Tenant updated successfully");
+      setTenants((prev) =>
+        prev.map((tenant) =>
+          tenant._id === editId ? { ...tenant, tenant_name: editName } : tenant
+        )
+      );
+      setEditId(null);
+    })
+    .catch((err) => {
+      console.error("Error updating tenant:", err);
+      alert("Failed to update tenant");
+    });
+};
+
 
   const handleBuildingSearch = (id) => {
     setBuildings([]);
@@ -107,12 +118,10 @@ const Tenants = () => {
       });
   };
 
+
   const filteredTenants = tenants.filter((tenant) =>
-    Object.values(tenant)
-      .join(" ")
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+  tenant.tenant_name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -142,12 +151,40 @@ const Tenants = () => {
               </div>
               <button type="submit" className="AddAdminBtn">Add Tenant</button>
             </form>
-            <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
+            <button className="AddAdminBtn " style={{width: "55%"}} onClick={() => setAddTenant(false)}> Back to Tenants </button>
           </div>
         </div>
       </div>
     );
-  } else if (!addTenant) {
+  }
+  
+  else if (editId) {
+    return (
+    <div className='AddAdminHome'>
+        <div className="AddAdminWrapper" style={{height: "350px"}}>
+          <div className="AddAdminFormBox">
+            <h2 className="AddAdminTitle">Edit Tenant Name:</h2>
+            <form onSubmit={handleSaveEdit}>
+              <div className="AddAdminInputBox">
+                <input
+                  type="text"
+                  id="tenant-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+                </div>
+                <button type="submit" className="AddAdminBtn">Save</button>
+                <button type="button" className="AddAdminBtn " style={{width: "55%"}} onClick={() => setEditId(null)}>
+                  Cancel
+                </button>
+              </form>
+          </div>
+        </div>
+        </div>
+    );
+  }
+  
+  else if (!addTenant) {
     return (
       <div className="table-container">
         {formVisible ? (
@@ -183,7 +220,7 @@ const Tenants = () => {
           </>
         ) : (
           <>
-            <h1>Tenants</h1>
+            <h1 style={{marginTop: "30px"}}>Tenants</h1>
             <div className="controls">
               <input type="text" className="form-control search-bar" placeholder="Search..." value={searchTerm} onChange={handleSearch} />
               <button className="btn btn-primary add-button" onClick={() => { setAddTenant(true); }}> <FaPlus /></button>
@@ -209,7 +246,7 @@ const Tenants = () => {
                       <td>
                         <button
                           className="edit-button"
-                          onClick={() => handleEdit(tenant._id)}
+                          onClick={() => handleEdit(tenant._id, tenant.tenant_name)}
                         >
                           <FaEdit />
                         </button>
@@ -242,7 +279,6 @@ const Tenants = () => {
             </div>
           </>
         )}
-        <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
       </div>
       
     );

@@ -9,10 +9,6 @@ import { useNavigate } from 'react-router-dom';
 const AddBuildings = () => {
 
  const navigate = useNavigate();
-   const Back = () => {
-         navigate('/')
-     }
-
 
   const [building_name, setBuildingName] = useState("");
   const [bdr_id, setBdrId] = useState("");
@@ -20,7 +16,6 @@ const AddBuildings = () => {
   const [documentationDate, setDocumentationDate] = useState("");
   const [area, setArea] = useState("");
   const [thsLink, setThsLink] = useState("");
-  const [ar_description, setAr_description] = useState("");
   const [en_description, setEn_description] = useState("");
   const [numberOfFloors, setNumberOfFloors] = useState("");
   const [street, setStreet] = useState("");
@@ -37,7 +32,6 @@ const AddBuildings = () => {
   const [originalUsage, setOriginalUsage] = useState([]);
   const [currentUsage, setCurrentUsage] = useState([]);
   const [status, setStatus] = useState([]);
-  const [frontImageLink, setFile] = useState();
   const [originalUsageArray, setOriginalUsageArray] = useState([]);
   const [currentUsageArray, setCurrentUsageArray] = useState([]);
   const [statusArray, setStatusArray] = useState([]);
@@ -202,10 +196,8 @@ const AddBuildings = () => {
       const buildingResponse = await axios.post("http://localhost:3001/AddBuilding", {
         building_name,
         area,
-        ar_description,
         en_description,
         thsLink,
-        frontImageLink,
         dateOfConstruction,
         documentationDate,
         numberOfFloors,
@@ -242,6 +234,7 @@ const AddBuildings = () => {
         }
 
         alert("Building and related data added successfully!");
+        navigate('/ShowBuildings');
 
       }
     }
@@ -335,18 +328,6 @@ const AddBuildings = () => {
   }, []);
 
 
-
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFile(reader.result); // Set Base64 string
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
     
 
   return (
@@ -422,65 +403,22 @@ const AddBuildings = () => {
           {/* Box 2 */}
           <div className="form-box">
 
-            <label className="add-building-label">Country</label>
+            <label className="add-building-label">Area (in square meters)</label>
             <div className="form-group">
-              <select name="country_id"
-                value={country_id}
-                onChange={(e) => setCountryId(e.target.value)}>
-               <option value="" disabled>
-                  Select a Country
-                </option>
-                {countries.map((country) => (
-                  <option key={country._id} value={country._id}>
-                    {country.country_name}
-                  </option>
-                ))}
-              </select>
+              <input type="number" name="area" onChange={(e) => setArea(e.target.value)} min="1"/>
             </div>
 
-            <label className="add-building-label">City</label>
+            <label className="add-building-label">Number of Floors</label>
             <div className="form-group">
-              <select name="city_name" value={city_id} onChange={(e) => setCityId(e.target.value)}>
-                <option value="">
-                  Select City
-                </option>
-                {cities.map((city) => (
-                  <option key={city._id} value={city._id}>
-                    {city.city_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <label className="add-building-label">Street</label>
-            <div className="form-group">
-              <input type="text" name="street" onChange={(e) => setStreet(e.target.value)}/>
-            </div>
-
-            <label className="add-building-label">Coordinates</label>
-            <div className="form-group">
-              <input
-                  type="text"
-                  name="coordinates"
-                  placeholder="latitude, longitude"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const coords = value.split(",").map((coord) => parseFloat(coord.trim()));
-                      setCoordinates(coords);
-                  }}
-                />
-            </div>
-
-            <label className="add-building-label">Front Image Link</label>
-            <div className="form-group">
-              <input type="file" name="frontImageLink" accept=".png, .jpg, .jpeg, .svg" onChange={handleFileChange} />
+              <input type="number" name="numberOfFloors" onChange={(e) => setNumberOfFloors(e.target.value)} min="1"/>
             </div>
             
-          </div>
 
-          {/* Box 3 */}
-          <div className="form-box">
-           
+            <label className="add-building-label" >360 View Link</label>
+            <div className="form-group">
+              <input type="text" name="thsLink" onChange={(e) => setThsLink(e.target.value)}/>
+            </div>
+
             <label className="add-building-label">Date of Construction</label>
             <div className="form-group">
               <input type="number" name="dateOfConstruction" onChange={(e) => setDateOfConstruction(e.target.value)} min="1900" />
@@ -491,6 +429,18 @@ const AddBuildings = () => {
             <div className="form-group">
               <input type="number" name="documentationDate" onChange={(e) => setDocumentationDate(e.target.value)} min="2022"/>
             </div>
+
+            <label className="add-building-label" >Building Description in English</label>
+            <div className="form-group">
+              <textarea name="en_description" onChange={(e) => setEn_description(e.target.value)} />
+            </div>
+
+            
+          </div>
+
+          {/* Box 3 */}
+          <div className="form-box">
+           
 
             <label className="add-building-label">Building During the Reign</label>
             <div className="form-group">
@@ -552,37 +502,59 @@ const AddBuildings = () => {
           {/* Box 4 */}
           <div className="form-box">
 
-          <label className="add-building-label">Area (in square meters)</label>
+              <label className="add-building-label">Country</label>
             <div className="form-group">
-              <input type="number" name="area" onChange={(e) => setArea(e.target.value)} min="1"/>
+              <select name="country_id"
+                value={country_id}
+                onChange={(e) => setCountryId(e.target.value)}>
+               <option value="" disabled>
+                  Select a Country
+                </option>
+                {countries.map((country) => (
+                  <option key={country._id} value={country._id}>
+                    {country.country_name}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <label className="add-building-label">Number of Floors</label>
+            <label className="add-building-label">City</label>
             <div className="form-group">
-              <input type="number" name="numberOfFloors" onChange={(e) => setNumberOfFloors(e.target.value)} min="1"/>
-            </div>
-            
-
-            <label className="add-building-label" >360 View Link</label>
-            <div className="form-group">
-              <input type="text" name="thsLink" onChange={(e) => setThsLink(e.target.value)}/>
-            </div>
-
-            <label className="add-building-label" >Building Description in Arabic</label>
-            <div className="form-group">
-              <textarea name="ar_description" onChange={(e) => setAr_description(e.target.value)}/>
+              <select name="city_name" value={city_id} onChange={(e) => setCityId(e.target.value)}>
+                <option value="">
+                  Select City
+                </option>
+                {cities.map((city) => (
+                  <option key={city._id} value={city._id}>
+                    {city.city_name}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <label className="add-building-label" >Building Description in English</label>
+            <label className="add-building-label">Street</label>
             <div className="form-group">
-              <textarea name="en_description" onChange={(e) => setEn_description(e.target.value)} />
+              <input type="text" name="street" onChange={(e) => setStreet(e.target.value)}/>
+            </div>
+
+            <label className="add-building-label">Coordinates</label>
+            <div className="form-group">
+              <input
+                  type="text"
+                  name="coordinates"
+                  placeholder="latitude, longitude"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const coords = value.split(",").map((coord) => parseFloat(coord.trim()));
+                      setCoordinates(coords);
+                  }}
+                />
             </div>
 
             <button type="submit" className="submit-button">Add Building</button>
           </div>
         </div>
       </form>
-      <button className="AddAdminBtn" style={{width: "100px"}} onClick={Back}>Home</button>
     </div>
   );
 };

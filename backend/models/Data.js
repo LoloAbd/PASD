@@ -54,10 +54,8 @@ const bdr_Model = mongoose.model("bdr", bdr_Schema);
 const Buildings_Schema = new mongoose.Schema({
     building_name: { type: String},
     area: { type: String},
-    ar_description: { type: String },
     en_description: { type: String},
     thsLink: { type: String},
-    frontImageLink: { type: String},
     dateOfConstruction: { type: Number},
     documentationDate: { type: Number},
     numberOfFloors: { type: String},
@@ -110,9 +108,8 @@ const Buildings_Usage_Model = mongoose.model("buildings_usages", Buildings_Usage
 // Architects Model
 const Architects_Schema = new mongoose.Schema({
     architect_name: { type: String},
-    architect_image: { type: String},
-    en_biography: { type: String },
-    ar_biography: { type: String},
+    filename: { type: String},
+    biography: { type: String }
 });
 const Architects_Model = mongoose.model("architects", Architects_Schema);
 
@@ -206,7 +203,7 @@ const Images_Schema = new mongoose.Schema({
     description: {
         type: String
     },
-    image: { type: String, required: true },
+    filename: { type: String, required: true },
 });
 const Images_Model = mongoose.model("images", Images_Schema);
 
