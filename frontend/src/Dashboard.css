@@ -1,20 +1,3 @@
-/* Global Styles */
-body {
-    font-family: Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: white; /* Ensures the background is white */
-    color: black;
-    max-width: 100%;
-    min-height: 100vh;
-    background-size: cover;
-    background-position: center;
-    background-image: url('./adminBG.jpeg');
-    background-repeat: no-repeat;
-    background-color: white;
-}
-
-
 /* Navbar Styles */
 .NavBarItems {
     display: flex;
@@ -78,27 +61,6 @@ body {
     display: block; /* Display dropdown on hover */
 }
 
-.dropdown {
-    display: none;
-    position: absolute;
-    left: 0;
-    margin-top: 10px;
-    background-color: rgba(0, 0, 0, 0.9);
-    width: 190px;
-}
-
-.dropdown .nav-Links {
-    display: block;
-    padding: 1rem;
-    font-size: 0.9rem;
-    white-space: nowrap;
-}
-
-.dropdown .nav-Links:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 0;
-    color: black;
-}
 
 /* Mobile Links */
 .nav-Links-mobile {
@@ -171,25 +133,6 @@ ul {
         width: 100%;
     }
 
-    .dropdown {
-        position: relative;
-        top: 0;
-        background-color: rgb(255, 255, 255);
-        margin-left: 35%;
-        box-shadow: none;
-    }
-
-    .dropdown .nav-Links {
-        font-size: 0.9rem;
-        padding: 1rem;
-        color: black;
-    }
-
-    .dropdown .nav-Links:hover {
-    background-color: rgba(0, 0, 0, 0.9);
-    border-radius: 0;
-    color: white;
-}
 }
 
 .session-notification {
@@ -203,4 +146,3 @@ ul {
   width: 20%;
   z-index: 1000;
 }
-

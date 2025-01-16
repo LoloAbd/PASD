@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
+import { FaEdit, FaEye} from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
-import './DataPage.css';
-
+import Pagination from "../../Pagination";
+import logAction from "../../logAction";
+import "./DataPage.css";
 import { useNavigate } from "react-router-dom";
 
 const Architects = () => {
@@ -20,24 +21,24 @@ const Architects = () => {
   const [isEditFormVisible, setIsEditFormVisible] = useState(false);
   const [editName, setEditName] = useState("");
   const [editEnBio, setEditEnBio] = useState("");
+  const [editArBio, setEditArBio] = useState("");
   const [editId, setEditId] = useState(null);
-
-   const AddArchitects = () => {
-    navigate('/AddArchitects');
-  };
 
   // Fetch architects on component mount
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/architects")
-      .then((res) => {
+    const fetchArchitects = async () => {
+      try {
+        const res = await axios.get("http://localhost:3001/architects");
         setArchitects(res.data);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error fetching architects:", err);
-      });
+        alert("Failed to fetch architects. Please try again.");
+      }
+    };
+    fetchArchitects();
   }, []);
 
+  // Handle sorting
   const handleSort = (columnName) => {
     const direction =
       sortConfig.key === columnName && sortConfig.direction === "asc"
@@ -53,85 +54,73 @@ const Architects = () => {
     setArchitects(sortedData);
   };
 
+  // Handle search
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
   };
 
+  // Handle edit architect
   const handleEdit = (architect) => {
     setEditName(architect.architect_name);
-    setEditEnBio(architect.biography);
+    setEditEnBio(architect.en_biography);
+    setEditArBio(architect.ar_biography);
     setEditId(architect._id);
     setIsEditFormVisible(true);
   };
 
-  const handleSaveChanges = (e) => {
+  // Handle save changes
+  const handleSaveChanges = async (e) => {
     e.preventDefault();
-
-    if (!editName || !editEnBio) {
-      alert("Please fill out all required fields.");
-      return;
-    }
 
     const updatedData = {
       architect_name: editName,
-      biography: editEnBio,
+      en_biography: editEnBio,
+      ar_biography: editArBio,
     };
 
-    axios
-      .put(`http://localhost:3001/architects/${editId}`, updatedData)
-      .then((response) => {
-        alert("Architect updated successfully!");
-        setArchitects((prev) =>
-          prev.map((architect) =>
-            architect._id === editId ? { ...architect, ...updatedData } : architect
-          )
-        );
-        setIsEditFormVisible(false);
-        setEditId(null);
-      })
-      .catch((err) => {
-        if (err.response) {
-          console.error("Response Error:", err.response.data);
-        } else if (err.request) {
-          console.error("Request Error:", err.request);
-        } else {
-          console.error("General Error:", err.message);
-        }
-      });
+    try {
+      await axios.put(`http://localhost:3001/architects/${editId}`, updatedData);
+      setArchitects((prev) =>
+        prev.map((architect) =>
+          architect._id === editId ? { ...architect, ...updatedData } : architect
+        )
+      );
+      alert("Architect updated successfully!");
+      logAction("Edit Architect", editName);
+      setIsEditFormVisible(false);
+    } catch (err) {
+      console.error("Error updating architect:", err);
+      alert("Failed to update architect. Please try again.");
+    }
   };
 
-  const handleBuildingSearch = (id) => {
-    setBuildings([]);
-    setSelectedArchitect(architects.find((architect) => architect._id === id));
-
-    axios
-      .get(`http://localhost:3001/architects/${id}/buildings`)
-      .then((res) => {
-        setBuildings(res.data);
-        setFormVisible(true);
-      })
-      .catch((err) => {
-        console.error("Error fetching buildings:", err);
-        alert("Failed to fetch buildings.");
-      });
+  // Handle building search
+  const handleBuildingSearch = async (id) => {
+    try {
+      const res = await axios.get(`http://localhost:3001/architects/${id}/buildings`);
+      setBuildings(res.data);
+      setSelectedArchitect(architects.find((architect) => architect._id === id));
+      setFormVisible(true);
+    } catch (err) {
+      console.error("Error fetching buildings:", err);
+      alert("Failed to fetch buildings.");
+    }
   };
 
+  // Filter architects based on search term
   const filteredArchitects = architects.filter((architect) =>
     architect.architect_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentArchitects = filteredArchitects.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentArchitects = filteredArchitects.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  if (isEditFormVisible) {
-    return (
-      <div className="table-container">
+  return (
+    <div className="table-container">
+      {isEditFormVisible ? (
         <div className="AddAdminWrapper" style={{ height: "550px" }}>
           <div className="AddAdminFormBox">
             <h2 className="AddAdminTitle">Edit Architect</h2>
@@ -144,113 +133,129 @@ const Architects = () => {
                 />
                 <label>Architect Name:</label>
               </div>
-              <label className="add-building-label">Biography</label>
+              <label className="add-building-label">Arabic Biography</label>
               <div className="form-group">
-                <textarea value={editEnBio} onChange={(e) => setEditEnBio(e.target.value)} />
+                <textarea
+                  value={editArBio}
+                  onChange={(e) => setEditArBio(e.target.value)}
+                />
               </div>
-              <button type="button" className="AddAdminBtn" style={{ width: "170px", marginTop: "30px" }} onClick={handleSaveChanges}>
+              <label className="add-building-label">English Biography</label>
+              <div className="form-group">
+                <textarea
+                  value={editEnBio}
+                  onChange={(e) => setEditEnBio(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className="AddAdminBtn"
+                style={{ width: "170px", marginTop: "30px" }}
+                onClick={handleSaveChanges}
+              >
                 Save Changes
               </button>
-              <button className="AddAdminBtn" style={{ width: "100px" }} onClick={() => setIsEditFormVisible(false)}>
+              <button
+                className="AddAdminBtn"
+                style={{ width: "100px" }}
+                onClick={() => setIsEditFormVisible(false)}
+              >
                 Cancel
               </button>
-
             </form>
           </div>
         </div>
-      </div>
-    );
-  } else {
-    return (
-      <div className="table-container">
-        {formVisible ? (
-          <>
-            <h1>Buildings Related to Architect: {selectedArchitect?.architect_name}</h1>
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>
-                    <AiOutlineFieldNumber />
-                  </th>
-                  <th>
-                    Building Name <BiSortAlt2 />
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {buildings.length > 0 ? (
-                  buildings.map((building, index) => (
-                    <tr key={building.building_id}>
-                      <td>{index + 1}</td>
-                      <td>{building.building_name}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="2">No buildings found.</td>
+      ) : formVisible ? (
+        <>
+          <h1>Buildings Related to Architect: {selectedArchitect?.architect_name}</h1>
+          <table className="custom-table">
+            <thead>
+              <tr>
+                <th><AiOutlineFieldNumber /></th>
+                <th>Building Name <BiSortAlt2 /></th>
+              </tr>
+            </thead>
+            <tbody>
+              {buildings.length > 0 ? (
+                buildings.map((building, index) => (
+                  <tr key={building.building_id}>
+                    <td>{index + 1}</td>
+                    <td>{building.building_name}</td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-            <button className="submit-button" onClick={() => setFormVisible(false)}>Back to Architects</button>
-          </>
-        ) : (
-          <>
-            <h1>Architects</h1>
-            <div className="controls">
-                <input type="text" className="form-control search-bar" placeholder="Search..." value={searchTerm} onChange={handleSearch} />
-                <button className="btn btn-primary add-button" onClick={AddArchitects}> <FaPlus /></button>
-            </div>
-            <table className="custom-table" style={{ width: "1000px" }}>
-              <thead>
+                ))
+              ) : (
                 <tr>
-                  <th>
-                    <AiOutlineFieldNumber />
-                  </th>
-                  <th onClick={() => handleSort("architect_name")}>Architect Name <BiSortAlt2 /></th>
-                  <th onClick={() => handleSort("biography")}>Biography <BiSortAlt2 /></th>
-                  <th>Actions</th>
+                  <td colSpan="2">No buildings found.</td>
                 </tr>
-              </thead>
-              <tbody>
-                {currentArchitects.length > 0 ? (
-                  currentArchitects.map((architect, index) => (
-                    <tr key={architect._id}>
-                      <td>{indexOfFirstItem + index + 1}</td>
-                      <td>{architect.architect_name}</td>
-                      <td>{architect.biography}</td>
-                      <td>
-                        <button className="edit-button" onClick={() => handleEdit(architect)}><FaEdit /></button>
-                        <button className="view-button" onClick={() => handleBuildingSearch(architect._id)}> <FaEye /> View Buildings</button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4">No architects found.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <div className="pagination">
-              {Array.from(
-                { length: Math.ceil(filteredArchitects.length / itemsPerPage) },
-                (_, i) => (
-                  <button
-                    key={i}
-                    className={`page-button ${currentPage === i + 1 ? "active" : ""}`}
-                    onClick={() => paginate(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                )
               )}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
+            </tbody>
+          </table>
+          <button className="submit-button" onClick={() => setFormVisible(false)}>
+            Back to Architects
+          </button>
+        </>
+      ) : (
+        <>
+          <h1 style={{ marginTop: "40px" }}>Architects</h1>
+          <div className="controls">
+            <input
+              type="text"
+              className="form-control search-bar"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <button className="btn btn-primary add-button" onClick={() => navigate("/AddArchitects")}  >+</button>
+          </div>
+          <table className="custom-table" style={{ width: "1200px" }}>
+            <thead>
+              <tr>
+                <th><AiOutlineFieldNumber /></th>
+                <th onClick={() => handleSort("architect_name")}>Architect Name <BiSortAlt2 /></th>
+                <th onClick={() => handleSort("en_biography")}>English Biography <BiSortAlt2 /></th>
+                <th style={{ width: "250px" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentArchitects.length > 0 ? (
+                currentArchitects.map((architect, index) => (
+                  <tr key={architect._id}>
+                    <td>{indexOfFirstItem + index + 1}</td>
+                    <td>{architect.architect_name}</td>
+                    <td>{architect.en_biography}</td>
+                    <td>
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEdit(architect)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="view-button"
+                        onClick={() => handleBuildingSearch(architect._id)}
+                      >
+                        <FaEye /> View Buildings
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4">No architects found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredArchitects.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
+        </>
+      )}
+    </div>
+  );
 };
 
 export default Architects;

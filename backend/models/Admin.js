@@ -9,6 +9,36 @@ const AdminSchema = new mongoose.Schema({
 });
 
 
+const logSchema = new mongoose.Schema(
+    {
+        action: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        details: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        timestamp: {
+            type: Date,
+            default: Date.now
+        },
+        adminUsername: {
+            type: String,
+            required: true,
+            trim: true
+        }
+    },
+);
+
+const Log = mongoose.model('Log', logSchema);
+
 
 const AdminModel = mongoose.model("admins", AdminSchema);
-module.exports = AdminModel;
+
+module.exports = {
+    Log,
+    AdminModel
+}

@@ -26,7 +26,10 @@ const Cities_Schema = new mongoose.Schema({
         required: true 
     },
     city_name: { type: String, required: true, unique: true },
-    map: {type: String}
+    map: {
+    data: Buffer, // Binary data for the file
+    contentType: String, // MIME type of the file
+  },
 });
 const Cities_Model = mongoose.model("cities", Cities_Schema);
 
@@ -54,7 +57,8 @@ const bdr_Model = mongoose.model("bdr", bdr_Schema);
 const Buildings_Schema = new mongoose.Schema({
     building_name: { type: String},
     area: { type: String},
-    en_description: { type: String},
+    en_description: { type: String },
+    ar_description: { type: String},
     thsLink: { type: String},
     dateOfConstruction: { type: Number},
     documentationDate: { type: Number},
@@ -109,7 +113,8 @@ const Buildings_Usage_Model = mongoose.model("buildings_usages", Buildings_Usage
 const Architects_Schema = new mongoose.Schema({
     architect_name: { type: String},
     filename: { type: String},
-    biography: { type: String }
+    ar_biography: { type: String },
+    en_biography: { type: String }
 });
 const Architects_Model = mongoose.model("architects", Architects_Schema);
 
@@ -193,19 +198,44 @@ const Buildings_Tenants_Schema = new mongoose.Schema({
 const Buildings_Tenants_Model = mongoose.model("buildings_tenants", Buildings_Tenants_Schema);
 
 
-// Images Model
 const Images_Schema = new mongoose.Schema({
-    building_id: {  
+    building_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "buildings",
-        required: true
+        required: true,
     },
     description: {
-        type: String
+        type: String,
+        required: true,
     },
-    filename: { type: String, required: true },
+    filename: {
+        type: String,
+        required: true,
+    },
+    front_image: {
+        type: String,
+        required: true,
+    },
+    Type: {
+        type: String,
+        required: true,
+    },
+    referenceType: {
+        type: String,
+        enum: ["ownedByPASD", "pictureReference"],
+        required: true,
+    },
+    pictureReference: {
+        type: String,
+        required: function () {
+            return this.referenceType === "pictureReference";
+        },
+    }
 });
+
 const Images_Model = mongoose.model("images", Images_Schema);
+
+module.exports = Images_Model;
 
 
 

@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
+import { FaEdit, FaEye} from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { GoPersonFill } from "react-icons/go";
-
-
+import logAction from "../../logAction";
+import Pagination from "../../Pagination"; // Reusable Pagination Component
 
 const Notaries = () => {
-
   const [notaries, setNotaries] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,29 +16,10 @@ const Notaries = () => {
   const [buildings, setBuildings] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
   const [selectedNotary, setSelectedNotary] = useState(null);
-  const [AddNotary, SetAddNotary] = useState("")
-  const [notary_name, setNotary_name] = useState("");
+  const [addNotary, setAddNotary] = useState(false);
+  const [notaryName, setNotaryName] = useState("");
   const [editId, setEditId] = useState(null);
   const [editName, setEditName] = useState("");
-  
-   const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Make the API call to add a new notary
-    axios.post('http://localhost:3001/add-notary', { notary_name })
-      .then((res) => {
-        console.log(res);
-        alert("Notary added successfully");
-         fetchNotaries();
-          SetAddNotary(false);
-          
-      })
-      .catch((err) => {
-        console.error("Error adding notary:", err);
-        alert("Failed to add notary");
-      });
-  };
-
 
   // Fetch notaries
   const fetchNotaries = useCallback(async () => {
@@ -48,13 +28,15 @@ const Notaries = () => {
       setNotaries(data);
     } catch (error) {
       console.error("Error fetching notaries:", error);
+      alert("Failed to fetch notaries. Please try again.");
     }
   }, []);
 
-   useEffect(() => {
+  useEffect(() => {
     fetchNotaries();
   }, [fetchNotaries]);
 
+  // Handle sorting
   const handleSort = (columnName) => {
     const direction =
       sortConfig.key === columnName && sortConfig.direction === "asc"
@@ -70,105 +52,125 @@ const Notaries = () => {
     setNotaries(sortedData);
   };
 
+  // Handle search
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
   };
 
+  // Handle add notary
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleBuildingSearch = (id) => {
-    setBuildings([]);
-    setSelectedNotary(notaries.find((notary) => notary._id === id));
-
-    axios
-      .get(`http://localhost:3001/notaries/${id}/buildings`)
-      .then((res) => {
-        setBuildings(res.data); // Assuming res.data contains building details
-        setFormVisible(true);
-      })
-      .catch((err) => {
-        console.error("Error fetching buildings:", err);
-        alert("Failed to fetch buildings.");
+    try {
+      const res = await axios.post("http://localhost:3001/add-notary", {
+        notary_name: notaryName,
       });
+      console.log(res);
+      alert("Notary added successfully");
+      fetchNotaries();
+      setAddNotary(false);
+      logAction("Add Notary", notaryName);
+    } catch (err) {
+      console.error("Error adding notary:", err);
+      alert("Failed to add notary. Please try again.");
+    }
   };
 
-
+  // Handle edit notary
   const handleEdit = (id, currentName) => {
-  setEditId(id);
-  setEditName(currentName);
+    setEditId(id);
+    setEditName(currentName);
   };
-  
-  const handleSaveEdit = (e) => {
-  e.preventDefault();
 
-  if (!editName) {
-    alert("Name cannot be empty");
-    return;
-  }
+  // Handle save edit
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
 
-  axios
-    .put(`http://localhost:3001/notaries/${editId}`, { notary_name: editName })
-    .then(() => {
-      alert("notary updated successfully");
+    if (!editName) {
+      alert("Name cannot be empty");
+      return;
+    }
+
+    try {
+      await axios.put(`http://localhost:3001/notaries/${editId}`, {
+        notary_name: editName,
+      });
+      alert("Notary updated successfully");
       setNotaries((prev) =>
         prev.map((notary) =>
           notary._id === editId ? { ...notary, notary_name: editName } : notary
         )
       );
       setEditId(null);
-    })
-    .catch((err) => {
+      logAction("Edit Notary", editName);
+    } catch (err) {
       console.error("Error updating notary:", err);
-      alert("Failed to update notary");
-    });
-};
+      alert("Failed to update notary. Please try again.");
+    }
+  };
 
+  // Handle building search
+  const handleBuildingSearch = async (id) => {
+    try {
+      const res = await axios.get(`http://localhost:3001/notaries/${id}/buildings`);
+      setBuildings(res.data);
+      setSelectedNotary(notaries.find((notary) => notary._id === id));
+      setFormVisible(true);
+    } catch (err) {
+      console.error("Error fetching buildings:", err);
+      alert("Failed to fetch buildings. Please try again.");
+    }
+  };
 
+  // Filter notaries based on search term
   const filteredNotaries = notaries.filter((notary) =>
-  notary.notary_name.toLowerCase().includes(searchTerm.toLowerCase())
-);
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentNotaries = filteredNotaries.slice(
-    indexOfFirstItem,
-    indexOfLastItem
+    notary.notary_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentNotaries = filteredNotaries.slice(indexOfFirstItem, indexOfLastItem);
 
-
-  if (AddNotary) {
-     return (
-        <div className='AddAdminHome'>
-          <div className="AddAdminWrapper">
-            <div className="AddAdminFormBox">
-              <h2 className="AddAdminTitle">Add New Notary</h2>
-              <form onSubmit={handleSubmit}>
-                <div className="AddAdminInputBox">
-                  <input
-                    type="text"
-                    name="notary_name"
-                    onChange={(e) => setNotary_name(e.target.value)}
-                    required
-                  />
-                  <label>Notary Name</label>
-                  <GoPersonFill className='icon' />
-                </div>
-               <button type="submit" className="AddAdminBtn">Add Notary</button>
-             </form>
-             <button className="AddAdminBtn " style={{width: "55%"}} onClick={() => SetAddNotary(false)} > Back to Notaries </button>
-            </div>
+  if (addNotary) {
+    return (
+      <div className="AddAdminHome">
+        <div className="AddAdminWrapper" style={{ height: "400px" }}>
+          <div className="AddAdminFormBox">
+            <h2 className="AddAdminTitle">Add New Notary</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="AddAdminInputBox">
+                <input
+                  type="text"
+                  name="notary_name"
+                  onChange={(e) => setNotaryName(e.target.value)}
+                  required
+                />
+                <label>Notary Name</label>
+                <GoPersonFill className="icon" />
+              </div>
+              <button type="submit" className="AddAdminBtn">
+                Add Notary
+              </button>
+            </form>
+            <button
+              className="AddAdminBtn"
+              style={{ width: "55%" }}
+              onClick={() => setAddNotary(false)}
+            >
+              Back to Notaries
+            </button>
           </div>
         </div>
+      </div>
     );
-    
   }
 
-
-    else if (editId) {
+  if (editId) {
     return (
-    <div className='AddAdminHome'>
-        <div className="AddAdminWrapper" style={{height: "350px"}}>
+      <div className="AddAdminHome">
+        <div className="AddAdminWrapper" style={{ height: "350px" }}>
           <div className="AddAdminFormBox">
             <h2 className="AddAdminTitle">Edit Notary Name:</h2>
             <form onSubmit={handleSaveEdit}>
@@ -179,22 +181,26 @@ const Notaries = () => {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                 />
-                </div>
-                <button type="submit" className="AddAdminBtn">Save</button>
-                <button type="button" className="AddAdminBtn " style={{width: "55%"}} onClick={() => setEditId(null)}>
-                  Cancel
-                </button>
-              </form>
+              </div>
+              <button type="submit" className="AddAdminBtn">
+                Save
+              </button>
+              <button
+                type="button"
+                className="AddAdminBtn"
+                style={{ width: "55%" }}
+                onClick={() => setEditId(null)}
+              >
+                Cancel
+              </button>
+            </form>
           </div>
         </div>
-        </div>
+      </div>
     );
   }
-    
-    
-    
-  else if (!AddNotary) {
-    return (
+
+  return (
     <div className="table-container">
       {formVisible ? (
         <>
@@ -225,14 +231,22 @@ const Notaries = () => {
               )}
             </tbody>
           </table>
-          <button className="submit-button " onClick={() => setFormVisible(false)} > Back to Notaries </button>
+          <button className="submit-button" onClick={() => setFormVisible(false)}>
+            Back to Notaries
+          </button>
         </>
-        ) : (
+      ) : (
         <>
-          <h1 style={{marginTop: "30px"}}>Notaries</h1>
+          <h1 style={{ marginTop: "30px" }}>Notaries</h1>
           <div className="controls">
-            <input type="text" className="form-control search-bar" placeholder="Search..." value={searchTerm} onChange={handleSearch} />
-            <button className="btn btn-primary add-button" onClick={() => {SetAddNotary(true)}}> <FaPlus /></button>
+            <input
+              type="text"
+              className="form-control search-bar"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <button className="btn btn-primary add-button"  onClick={() => setAddNotary(true)} >+</button>
           </div>
           <table className="custom-table">
             <thead>
@@ -259,38 +273,32 @@ const Notaries = () => {
                       >
                         <FaEdit />
                       </button>
-                      <button className="view-button"  onClick={() => handleBuildingSearch(notary._id)} > <FaEye /> View Buildings</button>
+                      <button
+                        className="view-button"
+                        onClick={() => handleBuildingSearch(notary._id)}
+                      >
+                        <FaEye /> View Buildings
+                      </button>
                     </td>
                   </tr>
                 ))
-                ) : (
+              ) : (
                 <tr>
                   <td colSpan="3">No notaries found.</td>
                 </tr>
               )}
             </tbody>
           </table>
-          <div className="pagination">
-            {Array.from(
-              { length: Math.ceil(filteredNotaries.length / itemsPerPage) },
-              (_, i) => (
-                <button
-                  key={i}
-                  className={`page-button ${
-                    currentPage === i + 1 ? "active" : ""
-                  }`}
-                  onClick={() => paginate(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              )
-            )}
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredNotaries.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </>
-        )}
+      )}
     </div>
   );
-  }
 };
 
 export default Notaries;

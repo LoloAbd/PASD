@@ -6,10 +6,13 @@
     justify-content: center;      /* Center children vertically */
     min-height: 100vh;            /* Full viewport height */
     padding: 40px;
-    background-color: white; 
 }
 
 
+.relatedHead{
+  background-color: white;
+  margin-bottom: 20px;
+}
 .table-container h1 {
     font-size: 36px;
     color: var(--black);
@@ -52,6 +55,7 @@
   border-collapse: collapse;
   color: black;
   background-color: white;
+  border: 4px solid rgba(2, 2, 127, 0.79);
 }
 
 .custom-table thead th {
@@ -147,3 +151,12 @@ td{
   background-color: #ffffff; 
 }
 
+.add-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  font-size: x-large;
+}

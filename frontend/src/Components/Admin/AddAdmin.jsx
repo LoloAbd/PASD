@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './AddAdmin.css';
 import axios from 'axios';
 import { SlEnvolope } from "react-icons/sl";
 import { GoPersonFill } from "react-icons/go";
 import { FaUserLock } from "react-icons/fa6";
 import { MdOutlinePassword } from "react-icons/md";
+import logAction from '../logAction';
 
 const AddAdmin = () => {
     const [first_name, setFirstName] = useState() 
@@ -12,8 +14,8 @@ const AddAdmin = () => {
     const [email, setEmail] = useState()
     const [username, setUsername] = useState()
     const [password, setPassword] = useState()
-    const [formVisible, setFormVisible] = useState(true);
 
+    const navigate = useNavigate();
     const handleSubmit = (e) => {
     e.preventDefault(); // Prevent form from refreshing the page
 
@@ -22,7 +24,8 @@ const AddAdmin = () => {
             .then(res => {
                 console.log(res);
                 alert("Admin Inserted Successfully");
-                setFormVisible(false);
+                navigate('/')
+                logAction('Add Admin', [first_name, last_name]);
             })
             .catch(err => {
                 console.error("Error inserting admin:", err);
@@ -43,10 +46,6 @@ const AddAdmin = () => {
                 }
             });
     };
-
-    if (!formVisible) {
-        return
-    }
 
     return (
         <div className='AddAdminHome'>

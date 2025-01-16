@@ -1,13 +1,20 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import logAction from '../../logAction'
 
 const AddArchitects = () => {
   const [architect_name, setArchitectName] = useState("");
-  const [biography, setDescription] = useState("");
+  const [ar_biography, setAr_biography] = useState("");
+  const [en_biography, setEn_biography] = useState("");
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+
+
+   const Back = () => {
+    navigate('/Architects');
+  }
 
   // Handle file selection
   const handleFileChange = (e) => {
@@ -27,7 +34,8 @@ const AddArchitects = () => {
       const formData = new FormData();
       formData.append("file", file); // file to upload
       formData.append("architect_name", architect_name); // name of the architect
-      formData.append("biography", biography); // biography of the architect
+      formData.append("ar_biography", ar_biography); // biography of the architect
+       formData.append("en_biography", en_biography);
 
       const response = await axios.post("http://localhost:3001/add-architect", formData, {
         headers: {
@@ -36,6 +44,7 @@ const AddArchitects = () => {
       });
 
       alert("Architect added successfully!");
+      logAction("Add Architect", architect_name);
       navigate('/Architects');
     } catch (error) {
       alert(`Failed to add architect. ${error.response?.data?.error || error.message}`);
@@ -43,11 +52,12 @@ const AddArchitects = () => {
   };
 
   return (
-    <div className="BuildingImagesWrapper">
-      <div className="BuildingImagesBox">
-        <h2 className="BuildingImagesTitle">Add Architect</h2>
+    <div className="AddAdminHome">
+       <div className="AddAdminWrapper">
+      <div className="AddAdminFormBox">
+        <h2 className="AddAdminTitle">Add Architect</h2>
         <form id="uploadForm" onSubmit={handleSubmit}>
-          <div className="InputGroup">
+          <div className="AddAdminInputBox">
             <label htmlFor="architect_name">Architect Name</label>
             <input
               type="text"
@@ -59,17 +69,27 @@ const AddArchitects = () => {
             />
           </div>
 
-          <div className="InputGroup">
-            <label htmlFor="biography">Biography</label>
+          <div className="AddAdminInputBox">
+            <label htmlFor="ar_biography">Arabic Biography</label>
             <textarea
-              id="biography"
-              value={biography}
-              name="biography"
-              onChange={(e) => setDescription(e.target.value)}
+              id="ar_biography"
+              value={ar_biography}
+              name="ar_biography"
+              onChange={(e) => setAr_biography(e.target.value)}
             />
           </div>
 
-          <div className="InputGroup">
+          <div className="AddAdminInputBox">
+            <label htmlFor="en_biography">English Biography</label>
+            <textarea
+              id="en_biography"
+              value={en_biography}
+              name="en_biography"
+              onChange={(e) => setEn_biography(e.target.value)}
+            />
+          </div>
+
+          <div className="AddAdminInputBox">
             <label htmlFor="image">Upload Image</label>
             <input
               type="file"
@@ -82,12 +102,12 @@ const AddArchitects = () => {
             />
           </div>
 
-          <button type="submit" className="BuildingImagesBtn">
-            Submit
-          </button>
+          <button type="submit" className="submit-button" style={{marginLeft : "15px"}}>Add Architect</button>
+          <button className="submit-button " style={{marginLeft : "20px"}} onClick={Back} > Back to Architects </button>
         </form>
       </div>
     </div>
+   </div>
   );
 };
 

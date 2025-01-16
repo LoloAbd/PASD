@@ -5,7 +5,7 @@ import { SlEnvolope } from "react-icons/sl";
 import { GoPersonFill } from "react-icons/go";
 import { FaUserLock } from "react-icons/fa6";
 import { MdOutlinePassword } from "react-icons/md";
-
+import logAction from '../logAction';
 const UpdateAdminInfo = () => {
     const [searchUsername, setSearchUsername] = useState(''); // For searching admin by username
     const [first_name, setFirstName] = useState('');
@@ -49,6 +49,7 @@ const UpdateAdminInfo = () => {
                 console.log(res);
                 alert("Admin updated successfully!");
                 setFormVisible(false);
+                logAction('Update Admin', [first_name, last_name, email, username, password]);
             })
             .catch((err) => console.error(err));
         

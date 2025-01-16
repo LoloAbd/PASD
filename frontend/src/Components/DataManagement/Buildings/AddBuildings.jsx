@@ -3,6 +3,7 @@ import axios from "axios";
 import "./AddBuildings.css";
 import ReactSelect from "react-select";
 import { useNavigate } from 'react-router-dom';
+import logAction from "../../logAction";
 
 
 
@@ -17,6 +18,7 @@ const AddBuildings = () => {
   const [area, setArea] = useState("");
   const [thsLink, setThsLink] = useState("");
   const [en_description, setEn_description] = useState("");
+  const [ar_description, setAr_description] = useState("");
   const [numberOfFloors, setNumberOfFloors] = useState("");
   const [street, setStreet] = useState("");
   const [coordinates, setCoordinates] = useState("");
@@ -39,6 +41,11 @@ const AddBuildings = () => {
   const [notaryArray, setNotaryArray] = useState([]);
   const [architectArray, setArchitectArray] = useState([]);
   const [tenantArray, setTenantArray] = useState([]);
+  const [file, setFile] = useState(null);
+
+  const Back = () => {
+    navigate('/ShowBuildings');
+  }
 
   const handleOwChange = (selectedOwOption) => {
     const formattedData = selectedOwOption.map((option) => ({
@@ -179,7 +186,12 @@ const AddBuildings = () => {
   
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
+
+    if (!file) {
+      alert("Please upload an image.");
+      return;
+    }
 
   try {
     const addressResponse = await axios.post("http://localhost:3001/AddAddress", {
@@ -197,12 +209,14 @@ const AddBuildings = () => {
         building_name,
         area,
         en_description,
+        ar_description,
         thsLink,
         dateOfConstruction,
         documentationDate,
         numberOfFloors,
         bdr_id,
         address_id,
+        file
       });
 
       if (buildingResponse.status === 201) {
@@ -235,6 +249,7 @@ const AddBuildings = () => {
 
         alert("Building and related data added successfully!");
         navigate('/ShowBuildings');
+        logAction("Add Building", building_name);
 
       }
     }
@@ -419,7 +434,22 @@ const AddBuildings = () => {
               <input type="text" name="thsLink" onChange={(e) => setThsLink(e.target.value)}/>
             </div>
 
-            <label className="add-building-label">Date of Construction</label>
+            <label className="add-building-label" >Building Description in English</label>
+            <div className="form-group">
+              <textarea name="en_description" onChange={(e) => setEn_description(e.target.value)} />
+            </div>
+
+             <label className="add-building-label" >Building Description in Arabic</label>
+            <div className="form-group">
+              <textarea name="ar_description" onChange={(e) => setAr_description(e.target.value)} />
+            </div>
+            
+          </div>
+
+          {/* Box 3 */}
+            <div className="form-box">
+           
+             <label className="add-building-label">Date of Construction</label>
             <div className="form-group">
               <input type="number" name="dateOfConstruction" onChange={(e) => setDateOfConstruction(e.target.value)} min="1900" />
             </div>
@@ -429,18 +459,6 @@ const AddBuildings = () => {
             <div className="form-group">
               <input type="number" name="documentationDate" onChange={(e) => setDocumentationDate(e.target.value)} min="2022"/>
             </div>
-
-            <label className="add-building-label" >Building Description in English</label>
-            <div className="form-group">
-              <textarea name="en_description" onChange={(e) => setEn_description(e.target.value)} />
-            </div>
-
-            
-          </div>
-
-          {/* Box 3 */}
-          <div className="form-box">
-           
 
             <label className="add-building-label">Building During the Reign</label>
             <div className="form-group">
@@ -483,8 +501,14 @@ const AddBuildings = () => {
                   placeholder="Select Current Usage"
                 />
               </div>
+            
+          </div>
 
-            <label className="add-building-label">Status</label>
+          {/* Box 4 */}
+          <div className="form-box">
+
+
+             <label className="add-building-label">Status</label>
             <div className="form-group">
               <ReactSelect className="ReactSelect"
                 options={status.map((status) => ({
@@ -496,11 +520,6 @@ const AddBuildings = () => {
                 placeholder="Select Status"
               />
             </div>
-            
-          </div>
-
-          {/* Box 4 */}
-          <div className="form-box">
 
               <label className="add-building-label">Country</label>
             <div className="form-group">
@@ -552,6 +571,7 @@ const AddBuildings = () => {
             </div>
 
             <button type="submit" className="submit-button">Add Building</button>
+            <button className="submit-button " style={{marginLeft : "20px"}} onClick={Back} > Back to Buildings </button>
           </div>
         </div>
       </form>
