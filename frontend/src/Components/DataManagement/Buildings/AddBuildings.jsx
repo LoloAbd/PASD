@@ -188,11 +188,6 @@ const AddBuildings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!file) {
-      alert("Please upload an image.");
-      return;
-    }
-
   try {
     const addressResponse = await axios.post("http://localhost:3001/AddAddress", {
       city_id,

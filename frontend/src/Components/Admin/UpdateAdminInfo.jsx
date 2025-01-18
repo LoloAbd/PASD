@@ -6,7 +6,10 @@ import { GoPersonFill } from "react-icons/go";
 import { FaUserLock } from "react-icons/fa6";
 import { MdOutlinePassword } from "react-icons/md";
 import logAction from '../logAction';
+import { useNavigate } from 'react-router-dom';
+
 const UpdateAdminInfo = () => {
+    const navigate = useNavigate();
     const [searchUsername, setSearchUsername] = useState(''); // For searching admin by username
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
@@ -15,7 +18,6 @@ const UpdateAdminInfo = () => {
     const [password, setPassword] = useState('');
     const [isAdminFound, setIsAdminFound] = useState(false); // To check if admin exists
     const [isSearchHidden, setIsSearchHidden] = useState(false); // Hide search bar after successful search
-    const [formVisible, setFormVisible] = useState(true);
 
     // Handle search for admin
     const handleSearch = () => {
@@ -48,16 +50,12 @@ const UpdateAdminInfo = () => {
             .then((res) => {
                 console.log(res);
                 alert("Admin updated successfully!");
-                setFormVisible(false);
+                navigate("/");
                 logAction('Update Admin', [first_name, last_name, email, username, password]);
             })
             .catch((err) => console.error(err));
         
     };
-
-    if (!formVisible) {
-        return 
-    }
 
     return (
         <div className="UpdateAdminHome">

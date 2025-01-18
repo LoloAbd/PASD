@@ -100,9 +100,9 @@ function App() {
                 style={{ display: "flex", alignItems: "center" }}
               >
                 <img
-                  src="./palestine.png"
+                  src="./icon.png"
                   style={{ width: "45px", height: "45px", marginRight: "10px" }}
-                  alt="Palestine"
+                  alt="icon"
                 />
                 <h2 className="h2Dashboard">PASD Admin Dashboard</h2>
               </div>

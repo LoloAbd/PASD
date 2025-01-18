@@ -133,8 +133,8 @@ app.post("/add-images", upload.single("file"), async (req, res) => {
     const { building_id, description, Type, referenceType, pictureReference } = req.body;
 
     // Validate required fields
-    if (!building_id || !description || !Type) {
-      return res.status(400).json({ error: "Building ID, description, and Type are required" });
+    if (!building_id || !Type) {
+      return res.status(400).json({ error: "Building ID, and Type are required" });
     }
 
     // Create a writable stream to GridFS

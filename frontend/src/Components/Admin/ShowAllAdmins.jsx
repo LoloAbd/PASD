@@ -129,11 +129,11 @@ const ShowAllAdmins = () => {
           <table className="adminTableContainer">
             <thead>
               <tr>
-                <th>First Name</th>
+                <th style={{width: "150px"}}>First Name</th>
                 <th>Last Name</th>
                 <th>Email</th>
                 <th>Username</th>
-                <th>Action</th>
+                <th style={{width: "300px"}}>Action</th>
               </tr>
             </thead>
             <tbody>
