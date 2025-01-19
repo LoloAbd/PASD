@@ -11,7 +11,7 @@ const ShowBuildings = () => {
   // State variables
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(7);
+  const [itemsPerPage] = useState(6);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [buildingData, setBuildingData] = useState({
     buildings: [],
@@ -113,13 +113,13 @@ const ShowBuildings = () => {
   const renderStatusTable = () => (
     <>
       <h1 className="relatedHead">Status Related to: {selectedBuilding?.building_name}</h1>
-      <table className="custom-table">
+      <table className="custom-table" style={{ width: "600px" }}>
         <thead>
           <tr>
             <th>
               <AiOutlineFieldNumber />
             </th>
-            <th>Status Name</th>
+            <th style={{ width: "500px" }}>Status Name</th>
           </tr>
         </thead>
         <tbody>
@@ -127,7 +127,7 @@ const ShowBuildings = () => {
             status.map((statusItem, index) => (
               <tr key={statusItem.status_id}>
                 <td>{index + 1}</td>
-                <td>{statusItem.status_name}</td>
+                <td >{statusItem.status_name}</td>
               </tr>
             ))
           ) : (
@@ -182,7 +182,7 @@ const ShowBuildings = () => {
   // Render buildings table
   const renderBuildingsTable = () => (
     <>
-      <h1>Buildings</h1>
+      <h1 style={{ marginTop: "40px" }}>Buildings</h1>
       <div className="controls">
         <input
           type="text"
@@ -193,7 +193,7 @@ const ShowBuildings = () => {
         />
         <button className="btn btn-primary add-button" onClick={AddBuilding}>+</button>
       </div>
-      <table className="custom-table" style={{ width: "1200px" }}>
+      <table className="custom-table"  style={{ width: "1400px" }}>
         <thead>
           <tr>
             <th>
@@ -209,7 +209,7 @@ const ShowBuildings = () => {
             <th>Usages</th>
             <th>Street</th>
             <th>City</th>
-            <th>360 View Link</th>
+            <th style={{ width: "400px" }}>360 View Link</th>
           </tr>
         </thead>
         <tbody>
@@ -257,7 +257,7 @@ const ShowBuildings = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="10">No Buildings found.</td>
+              <td colSpan="8">No Buildings found.</td>
             </tr>
           )}
         </tbody>

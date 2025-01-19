@@ -166,7 +166,7 @@ const handleSubmit = async (e) => {
         <table className="custom-table">
           <thead>
             <tr>
-              <th>
+              <th style={{ width: "70px" }}>
                 <AiOutlineFieldNumber />
               </th>
               <th onClick={() => handleSort("city_name")}>City Name <BiSortAlt2 /></th>

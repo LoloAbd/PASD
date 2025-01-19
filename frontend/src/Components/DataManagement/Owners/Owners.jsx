@@ -208,7 +208,7 @@ const Owners = () => {
           <table className="custom-table">
             <thead>
               <tr>
-                <th>
+                <th style={{ width: "70px" }}>
                   <AiOutlineFieldNumber />
                 </th>
                 <th>
@@ -251,7 +251,7 @@ const Owners = () => {
           <table className="custom-table">
             <thead>
               <tr>
-                <th>
+                <th style={{ width: "70px" }}>
                   <AiOutlineFieldNumber />
                 </th>
                 <th onClick={() => handleSort("owner_name")}>

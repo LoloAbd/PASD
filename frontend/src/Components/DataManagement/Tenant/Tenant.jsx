@@ -208,7 +208,7 @@ const Tenants = () => {
           <table className="custom-table">
             <thead>
               <tr>
-                <th>
+                <th style={{ width: "70px" }}>
                   <AiOutlineFieldNumber />
                 </th>
                 <th>
@@ -251,7 +251,7 @@ const Tenants = () => {
           <table className="custom-table">
             <thead>
               <tr>
-                <th>
+                <th style={{ width: "70px" }}>
                   <AiOutlineFieldNumber />
                 </th>
                 <th onClick={() => handleSort("tenant_name")}>

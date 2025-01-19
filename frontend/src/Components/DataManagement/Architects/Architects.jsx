@@ -207,12 +207,12 @@ const Architects = () => {
             />
             <button className="btn btn-primary add-button" onClick={() => navigate("/AddArchitects")}  >+</button>
           </div>
-          <table className="custom-table" style={{ width: "1200px" }}>
+          <table className="custom-table" style={{ width: "1000px" }}>
             <thead>
               <tr>
-                <th><AiOutlineFieldNumber /></th>
+                <th style={{ width: "70px" }}><AiOutlineFieldNumber /></th>
                 <th onClick={() => handleSort("architect_name")}>Architect Name <BiSortAlt2 /></th>
-                <th onClick={() => handleSort("en_biography")}>English Biography <BiSortAlt2 /></th>
+                <th onClick={() => handleSort("en_biography")} style={{ width: "550px" }}>English Biography <BiSortAlt2 /></th>
                 <th style={{ width: "250px" }}>Actions</th>
               </tr>
             </thead>
@@ -220,7 +220,7 @@ const Architects = () => {
               {currentArchitects.length > 0 ? (
                 currentArchitects.map((architect, index) => (
                   <tr key={architect._id}>
-                    <td>{indexOfFirstItem + index + 1}</td>
+                    <td >{indexOfFirstItem + index + 1}</td>
                     <td>{architect.architect_name}</td>
                     <td>{architect.en_biography}</td>
                     <td>
