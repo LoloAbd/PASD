@@ -123,11 +123,13 @@ const Home = () => {
                     <FontAwesomeIcon icon={faUserShield} className="icon" /> Owners
                   </Link>
                 </li>
-                <li>
+                {isAdminAllowed && 
+                  <li>
                   <Link to="/Notaries" className="Link">
                     <FontAwesomeIcon icon={faUserTie} className="icon" /> Notaries
                   </Link>
                 </li>
+                }
                 <li>
                   <Link to="/Cities" className="Link">
                     <FontAwesomeIcon icon={faCity} className="icon" /> Cities

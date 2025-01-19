@@ -13,6 +13,7 @@ const options = [
   { value: "groundFloor", label: "Ground Floor" },
   { value: "sections", label: "Section" },
   { value: "elevations", label: "Elevation" },
+  { value: "photo", label: "Photo" },
 ];
 
 const BuildingImages = () => {
@@ -132,6 +133,7 @@ const BuildingImages = () => {
                 />
                 {selectedOption && 
                   (selectedOption.value === "drawing" ||
+                  selectedOption.value === "photo" ||
                     selectedOption.value === "floorPlan" ||
                     selectedOption.value === "sections" ||
                     selectedOption.value === "elevations") && (
