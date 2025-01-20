@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaRegTrashAlt } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +44,35 @@ const ShowBuildings = () => {
     fetchData();
   }, []);
 
+
+const handleDeleteBuilding = async (buildingId, addressId) => {
+  try {
+    console.log("Deleting building with ID:", buildingId);
+    console.log("Deleting related address with ID:", addressId);
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this building and all related data?"
+    );
+
+    if (!confirmDelete) return;
+
+    const res = await axios.delete(`http://localhost:3001/buildings/${buildingId}/${addressId}`);
+
+    if (res.status === 200) {
+      alert("Building and related data deleted successfully.");
+
+      // Refresh the buildings list
+      const buildingsRes = await axios.get("http://localhost:3001/get-buildings");
+      setBuildingData((prev) => ({ ...prev, buildings: buildingsRes.data }));
+    }
+  } catch (err) {
+    console.error("Error deleting building:", err);
+    alert("Failed to delete building.");
+  }
+};
+
+
+  
   // Handle sorting
   const handleSort = (columnName) => {
     const direction =
@@ -209,7 +238,8 @@ const ShowBuildings = () => {
             <th>Usages</th>
             <th>Street</th>
             <th>City</th>
-            <th style={{ width: "400px" }}>360 View Link</th>
+            <th style={{ width: "400px", overflow: "hidden"}}>360 View Link</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -252,7 +282,10 @@ const ShowBuildings = () => {
                     );
                   })()}
                 </td>
-                <td>{building.thsLink}</td>
+                <td style={{ width: "400px", overflow: "hidden"}}>{building.thsLink}</td>
+                <td>
+                <button className="delete-button" onClick={() => handleDeleteBuilding(building._id, building.address_id)}> <FaRegTrashAlt/> </button>
+              </td>
               </tr>
             ))
           ) : (

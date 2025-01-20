@@ -111,7 +111,7 @@ const Buildings_Usage_Model = mongoose.model("buildings_usages", Buildings_Usage
 
 // Architects Model
 const Architects_Schema = new mongoose.Schema({
-    architect_name: { type: String},
+    architect_name: { type: String , unique: true},
     filename: { type: String},
     ar_biography: { type: String },
     en_biography: { type: String }
@@ -135,7 +135,7 @@ const Buildings_Architects_Model = mongoose.model("buildings_architects", Buildi
 
 // Notaries Model
 const Notaries_Schema = new mongoose.Schema({
-    notary_name: { type: String, required: true }
+    notary_name: { type: String, required: true , unique: true }
 });
 const Notaries_Model = mongoose.model("notaries", Notaries_Schema);
 
@@ -157,7 +157,7 @@ const Buildings_Notaries_Model = mongoose.model("buildings_notaries", Buildings_
 
 // Owners Model 
 const Owners_Schema = new mongoose.Schema({
-    owner_name: { type: String, required: true }
+    owner_name: { type: String, required: true, unique: true }
 });
 const Owners_Model = mongoose.model("owners", Owners_Schema);
 
@@ -178,7 +178,7 @@ const Buildings_Owners_Model = mongoose.model("buildings_owners", Buildings_Owne
 
 // Tenants Model
 const Tenants_Schema = new mongoose.Schema({
-    tenant_name: { type: String, required: true }
+    tenant_name: { type: String, required: true, unique: true }
 });
 const Tenants_Model = mongoose.model("tenants", Tenants_Schema);
 

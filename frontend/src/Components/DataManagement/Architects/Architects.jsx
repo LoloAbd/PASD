@@ -40,17 +40,28 @@ const Architects = () => {
 
   // Handle sorting
   const handleSort = (columnName) => {
+    // Determine the new sort direction based on current sort configuration
     const direction =
       sortConfig.key === columnName && sortConfig.direction === "asc"
-        ? "desc"
-        : "asc";
+        ? "desc" // If the column is already sorted in ascending order, switch to descending
+        : "asc";  // Otherwise, sort in ascending order
+
+    // Update the sorting configuration (key and direction)
     setSortConfig({ key: columnName, direction });
 
+    // Create a new sorted array based on the chosen column
     const sortedData = [...architects].sort((a, b) => {
+      // Compare values of the chosen column for sorting (in ascending or descending order)
+      // If the direction is ascending ("asc"), return -1 to place a before b in the sorted array
+      // If the direction is descending ("desc"), return 1 to place b before a in the sorted array
       if (a[columnName] < b[columnName]) return direction === "asc" ? -1 : 1;
       if (a[columnName] > b[columnName]) return direction === "asc" ? 1 : -1;
+
+      // If the values are equal, return 0 (no change in order)
       return 0;
     });
+
+    // Update the state with the sorted data
     setArchitects(sortedData);
   };
 
@@ -171,7 +182,7 @@ const Architects = () => {
           <table className="custom-table">
             <thead>
               <tr>
-                <th><AiOutlineFieldNumber /></th>
+                <th style={{ width: "70px" }}><AiOutlineFieldNumber /></th>
                 <th>Building Name <BiSortAlt2 /></th>
               </tr>
             </thead>

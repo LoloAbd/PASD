@@ -24,65 +24,99 @@ function App() {
 
   // Function to check localStorage for login status
   const getLocalStorageWithExpiry = (key) => {
+    // Get the stored item from localStorage by the given key
     const itemStr = localStorage.getItem(key);
+    
+    // If the item doesn't exist in localStorage, return null
     if (!itemStr) return null;
 
+    // Parse the item into a JavaScript object
     const item = JSON.parse(itemStr);
+
+    // Check if the current time exceeds the stored expiry time
     if (Date.now() > item.expiryTime) {
+      // If expired, remove the item from localStorage
       localStorage.removeItem(key);
       return null;
     }
+    
+    // Return the value of the item if it's still valid
     return item.value;
   };
 
   // Function to handle logout
   const handleLogout = () => {
+    // Remove login-related items from localStorage
     localStorage.removeItem("isLogin");
     localStorage.removeItem("remainingTime");
     localStorage.removeItem("adminUsername");
+    
+    // Set the login state to false (logged out)
     setIsLogin(false);
-    setRemainingTime(0); // Reset timer to zero
-    window.location.reload(); // Ensure the app resets
+
+    // Reset the remaining time to 0
+    setRemainingTime(0); 
+
+    // Reload the page to reset the app state
+    window.location.reload(); 
   };
 
   // Function to format remaining time as MM:SS
   const formatTime = (time) => {
+    // Calculate the minutes part of the time
     const minutes = Math.floor(time / 60);
+    
+    // Calculate the seconds part of the time
     const seconds = time % 60;
+    
+    // Return formatted string in MM:SS format
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
   // Effect to initialize login status and remaining time
   useEffect(() => {
+    // Check if there is a saved login status in localStorage
     const loginStatus = getLocalStorageWithExpiry("isLogin");
+    
+    // Set the login state based on whether the status exists and is valid
     setIsLogin(!!loginStatus);
 
+    // Retrieve the saved remaining time from localStorage
     const savedTime = localStorage.getItem("remainingTime");
+    
+    // If there is a saved time and the user is logged in, restore the remaining time
     if (savedTime && loginStatus) {
-      setRemainingTime(Number(savedTime)); // Restore saved time if logged in
+      setRemainingTime(Number(savedTime)); 
     } else {
-      setRemainingTime(3600); // Initialize to default 3600 seconds
+      // Initialize remaining time to 3600 seconds (1 hour) if not logged in
+      setRemainingTime(3600); 
     }
-  }, []);
+  }, []); // Empty dependency array means this effect runs only once when the component mounts
 
   // Effect to handle the countdown timer
   useEffect(() => {
+    // If the remaining time is greater than 0, start the countdown
     if (remainingTime > 0) {
+      // Set an interval to decrement the remaining time every second
       const timer = setInterval(() => {
         setRemainingTime((prevTime) => {
+          // If time is about to expire, log the user out
           if (prevTime <= 1) {
             handleLogout(); // Logout when time expires
             return 0;
           }
+          
+          // Otherwise, decrease the time by 1 second and update localStorage
           const updatedTime = prevTime - 1;
           localStorage.setItem("remainingTime", updatedTime);
           return updatedTime;
         });
       }, 1000);
 
+      // Cleanup the interval on component unmount or time change
       return () => clearInterval(timer);
     }
-  }, [remainingTime]);
+  }, [remainingTime]); // The effect depends on remainingTime and will run whenever it changes
 
   // Toggle mobile menu
   const handleClick = () => {

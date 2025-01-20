@@ -589,6 +589,44 @@ app.get("/get-buildings", async (req, res) => {
 });
 
 
+app.delete("/buildings/:id/:addressId", async (req, res) => {
+  try {
+    const { id: buildingId, addressId } = req.params;
+
+    // Delete related records
+    await Promise.all([
+      Buildings_Status_Model.deleteMany({ building_id: buildingId }),
+      Buildings_Usage_Model.deleteMany({ building_id: buildingId }),
+      Buildings_Architects_Model.deleteMany({ building_id: buildingId }),
+      Buildings_Notaries_Model.deleteMany({ building_id: buildingId }),
+      Buildings_Owners_Model.deleteMany({ building_id: buildingId }),
+      Buildings_Tenants_Model.deleteMany({ building_id: buildingId }),
+      Images_Model.deleteMany({ building_id: buildingId }),
+    ]);
+
+    console.log("Related records deleted successfully.");
+
+    // Delete the building itself
+    const deletedBuilding = await Buildings_Model.findByIdAndDelete(buildingId);
+    if (!deletedBuilding) {
+      return res.status(404).json({ error: "Building not found" });
+    }
+
+    // Delete the related address
+    const deletedAddress = await Addresses_Model.findByIdAndDelete(addressId);
+    if (!deletedAddress) {
+      console.warn("Warning: Address not found or already deleted.");
+    } else {
+      console.log("Address deleted successfully.");
+    }
+
+    res.status(200).json({ message: "Building and related data deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting building:", error);
+    res.status(500).json({ error: "Failed to delete building." });
+  }
+});
+
 
 
 // Add Address

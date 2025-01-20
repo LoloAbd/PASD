@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "axios"; // Promise-Based HTTP Client for JavaScript used to make HTTP requests
 import "./AddBuildings.css";
 import ReactSelect from "react-select";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // to navigate between routes in our app.
 import logAction from "../../logAction";
 
 
@@ -11,7 +11,7 @@ const AddBuildings = () => {
 
  const navigate = useNavigate();
 
-  const [building_name, setBuildingName] = useState("");
+  const [building_name, setBuildingName] = useState(""); // use useState to set var and function to update it with initial value null or ""
   const [bdr_id, setBdrId] = useState("");
   const [dateOfConstruction, setDateOfConstruction] = useState("");
   const [documentationDate, setDocumentationDate] = useState("");
@@ -41,152 +41,151 @@ const AddBuildings = () => {
   const [notaryArray, setNotaryArray] = useState([]);
   const [architectArray, setArchitectArray] = useState([]);
   const [tenantArray, setTenantArray] = useState([]);
-  const [file, setFile] = useState(null);
 
   const Back = () => {
+    // Navigates to the 'ShowBuildings' page
     navigate('/ShowBuildings');
-  }
+  };
 
   const handleOwChange = (selectedOwOption) => {
-    const formattedData = selectedOwOption.map((option) => ({
-      building_id: localStorage.getItem('building_id'),
-      owner_id: option.value,
-    }));
-    setOwnerArray(formattedData);
+      // Maps selected owner options to an array of objects, each containing building_id and owner_id
+      const formattedData = selectedOwOption.map((option) => ({
+        building_id: localStorage.getItem('building_id'), // Retrieves the building ID from localStorage
+        owner_id: option.value, // Assigns the selected owner's ID
+      }));
+      setOwnerArray(formattedData); // Updates the state with the formatted owner data
   };
 
   const handleTeChange = (selectedTeOption) => {
-    const formattedData = selectedTeOption.map((option) => ({
-      building_id: localStorage.getItem('building_id'),
-      tenant_id: option.value,
-    }));
-    setTenantArray(formattedData);
+      // Maps selected tenant options to an array of objects, each containing building_id and tenant_id
+      const formattedData = selectedTeOption.map((option) => ({
+        building_id: localStorage.getItem('building_id'), // Retrieves the building ID from localStorage
+        tenant_id: option.value, // Assigns the selected tenant's ID
+      }));
+      setTenantArray(formattedData); // Updates the state with the formatted tenant data
   };
 
   const handleNoChange = (selectedNoOption) => {
-    const formattedData = selectedNoOption.map((option) => ({
-      building_id: localStorage.getItem('building_id'),
-      building_name: building_name,
-      notary_id: option.value,
-    }));
-    setNotaryArray(formattedData);
+      // Maps selected notary options to an array of objects, each containing building_id, building_name, and notary_id
+      const formattedData = selectedNoOption.map((option) => ({
+        building_id: localStorage.getItem('building_id'), // Retrieves the building ID from localStorage
+        building_name: building_name, // Uses the current building name
+        notary_id: option.value, // Assigns the selected notary's ID
+      }));
+      setNotaryArray(formattedData); // Updates the state with the formatted notary data
   };
 
   const handleArChange = (selectedArOption) => {
-    const formattedData = selectedArOption.map((option) => ({
-      building_id: localStorage.getItem('building_id'),
-      architect_id: option.value,
-    }));
-    setArchitectArray(formattedData);
+      // Maps selected architect options to an array of objects, each containing building_id and architect_id
+      const formattedData = selectedArOption.map((option) => ({
+        building_id: localStorage.getItem('building_id'), // Retrieves the building ID from localStorage
+        architect_id: option.value, // Assigns the selected architect's ID
+      }));
+      setArchitectArray(formattedData); // Updates the state with the formatted architect data
   };
 
-   const handleOrChange = (selectedOrOption) => {
-    const formattedData = selectedOrOption.map((option) => ({
-      building_id: localStorage.getItem('building_id'),
-      usage_id: option.value,
-      type: "original",
-    }));
-    setOriginalUsageArray(formattedData);
+  const handleOrChange = (selectedOrOption) => {
+      // Maps selected original usage options to an array of objects, each containing building_id, usage_id, and type
+      const formattedData = selectedOrOption.map((option) => ({
+        building_id: localStorage.getItem('building_id'), // Retrieves the building ID from localStorage
+        usage_id: option.value, // Assigns the selected usage ID
+        type: "original", // Sets the type to "original" usage
+      }));
+      setOriginalUsageArray(formattedData); // Updates the state with the formatted original usage data
   };
 
   const handleCuChange = (selectedCuOption) => {
-    const formattedData = selectedCuOption.map((option) => ({
-      building_id: localStorage.getItem('building_id'),
-      usage_id: option.value,
-      type: "current",
-    }));
-    setCurrentUsageArray(formattedData);
-    
+      // Maps selected current usage options to an array of objects, each containing building_id, usage_id, and type
+      const formattedData = selectedCuOption.map((option) => ({
+        building_id: localStorage.getItem('building_id'), // Retrieves the building ID from localStorage
+        usage_id: option.value, // Assigns the selected usage ID
+        type: "current", // Sets the type to "current" usage
+      }));
+      setCurrentUsageArray(formattedData); // Updates the state with the formatted current usage data
   }; //setStatusArray
+
 
 
   const handleSChange = (selectedSOption) => {
     const formattedData = selectedSOption.map((option) => ({
-      building_id: localStorage.getItem('building_id'),
-      status_id: option.value
+      building_id: localStorage.getItem('building_id'),  // Retrieves the building ID from localStorage
+      status_id: option.value // Assigns the selected status ID
     }));
-    setStatusArray(formattedData);
+    setStatusArray(formattedData); // Updates the state with the formatted status data
     
   };
 
 
   const addUsageToBackend = async (usage) => {
       try {
-        const { building_id, usage_id, type } = usage;
-        // Log data before sending to backend for debugging
-        console.log("Sending data:", { building_id, usage_id, type });
-        const response = await axios.post("http://localhost:3001/add-building-usage", {building_id,usage_id,type,});
+          const { building_id, usage_id, type } = usage;
+          // Sends a POST request to add usage data for a building
+          await axios.post("http://localhost:3001/add-building-usage", { building_id, usage_id, type });
+      } catch (error) {
+          console.error("Error adding usage:", error);
+          alert("Failed to add usage. Please try again.");
+      }
+  };
 
-      } catch (error) {
-        console.error("Error adding usage:", error);
-        alert("Failed to add usage. Please try again.");
-      }
-  };
-  
-   const addStatusToBackend = async (status) => {
+  const addStatusToBackend = async (status) => {
       try {
-        const { building_id, status_id } = status;
-        // Log data before sending to backend for debugging
-        console.log("Sending data:", { building_id, status_id});
-        const response = await axios.post("http://localhost:3001/add-building-status", {building_id,status_id});
+          const { building_id, status_id } = status;
+          // Sends a POST request to add status data for a building
+          await axios.post("http://localhost:3001/add-building-status", { building_id, status_id });
       } catch (error) {
-        console.error("Error adding status:", error);
-        alert("Failed to add status. Please try again.");
+          console.error("Error adding status:", error);
+          alert("Failed to add status. Please try again.");
       }
   };
-  
 
-   const addArchitectsToBackend = async (architect) => {
+  const addArchitectsToBackend = async (architect) => {
       try {
-        const { building_id, architect_id } = architect;
-        // Log data before sending to backend for debugging
-        console.log("Sending data:", { building_id, architect_id});
-        await axios.post("http://localhost:3001/add-buildings-architects", {building_id, architect_id});
+          const { building_id, architect_id } = architect;
+          // Sends a POST request to add architect data for a building
+          await axios.post("http://localhost:3001/add-buildings-architects", { building_id, architect_id });
       } catch (error) {
-        console.error("Error adding architects:", error);
-        alert("Failed to add architects. Please try again.");
+          console.error("Error adding architects:", error);
+          alert("Failed to add architects. Please try again.");
       }
   };
-  
+
   const addNotariesToBackend = async (notary) => {
       try {
-        const { building_id, notary_id, building_name} = notary;
-        // Log data before sending to backend for debugging
-        console.log("Sending data:", { building_id, notary_id});
-        await axios.post("http://localhost:3001/add-buildings-notaries", {building_id, notary_id, building_name});
+          const { building_id, notary_id, building_name } = notary;
+          // Sends a POST request to add notary data for a building
+          await axios.post("http://localhost:3001/add-buildings-notaries", { building_id, notary_id, building_name });
       } catch (error) {
-        console.error("Error adding notary:", error);
-        alert("Failed to add notary. Please try again.");
+          console.error("Error adding notary:", error);
+          alert("Failed to add notary. Please try again.");
       }
   };
-  
+
   const addTenantsToBackend = async (tenant) => {
       try {
-        const { building_id, tenant_id } = tenant;
-        // Log data before sending to backend for debugging
-        console.log("Sending data:", { building_id, tenant_id});
-        await axios.post("http://localhost:3001/add-buildings-tenants", {building_id, tenant_id});
+          const { building_id, tenant_id } = tenant;
+          // Sends a POST request to add tenant data for a building
+          await axios.post("http://localhost:3001/add-buildings-tenants", { building_id, tenant_id });
       } catch (error) {
-        console.error("Error adding tenant:", error);
-        alert("Failed to add tenant. Please try again.");
+          console.error("Error adding tenant:", error);
+          alert("Failed to add tenant. Please try again.");
       }
   };
-  
+
   const addOwnersToBackend = async (owner) => {
       try {
-        const { building_id, owner_id } = owner;
-        // Log data before sending to backend for debugging
-        console.log("Sending data:", { building_id, owner_id});
-        await axios.post("http://localhost:3001/add-buildings-owners", {building_id, owner_id});
+          const { building_id, owner_id } = owner;
+          // Sends a POST request to add owner data for a building
+          await axios.post("http://localhost:3001/add-buildings-owners", { building_id, owner_id });
       } catch (error) {
-        console.error("Error adding owner:", error);
-        alert("Failed to add owner. Please try again.");
+          console.error("Error adding owner:", error);
+          alert("Failed to add owner. Please try again.");
       }
   };
+
   
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault(); // Prevents the default form submission behavior to avoid page reload
 
   try {
     const addressResponse = await axios.post("http://localhost:3001/AddAddress", {
@@ -210,8 +209,7 @@ const AddBuildings = () => {
         documentationDate,
         numberOfFloors,
         bdr_id,
-        address_id,
-        file
+        address_id
       });
 
       if (buildingResponse.status === 201) {
@@ -219,7 +217,6 @@ const AddBuildings = () => {
         const building_id = buildings._id;
         localStorage.setItem('building_id', building_id);
 
-        // Pass the building_id directly to backend functions
         for (const usage of originalUsageArray) {
           await addUsageToBackend({ ...usage, building_id });
         }
@@ -257,7 +254,7 @@ const AddBuildings = () => {
   
    // Fetch all status
   useEffect(() => {
-    axios.get("http://localhost:3001/status") 
+    axios.get("http://localhost:3001/status") // make an HTTP GET request to the URL.
       .then((res) => {
         setStatus(res.data); // Save the fetched data in the state
         
@@ -351,7 +348,7 @@ const AddBuildings = () => {
           <div className="form-box">
             <label className="add-building-label">Building Name</label>
             <div className="form-group">
-              <input type="text" name="building_name" onChange={(e) => setBuildingName(e.target.value)}/>
+              <input type="text" name="building_name" onChange={(e) => setBuildingName(e.target.value)} required/>
             </div>
 
             
@@ -360,11 +357,11 @@ const AddBuildings = () => {
             <div className="form-group">
               <ReactSelect className="ReactSelect"
                 options={architects.map((architect) => ({
-                  value: architect._id,
-                  label:architect.architect_name
+                  value: architect._id, // Architect ID (Used Internally)
+                  label:architect.architect_name // Architect Name (Displayed)
                 }))}
                 isMulti={true}
-                onChange={handleArChange}
+                onChange={handleArChange} // Calls handleArChange when selection changes
                 placeholder="Select Architect Name"
               />
             </div>
@@ -373,8 +370,8 @@ const AddBuildings = () => {
             <div className="form-group">
               <ReactSelect className="ReactSelect"
                 options={owners.map((owner) => ({
-                  value: owner._id,
-                  label:owner.owner_name
+                  value: owner._id, // Owner ID (Used Internally)
+                  label:owner.owner_name // Owner Name (Displayed)
                 }))}
                 isMulti={true}
                 onChange={handleOwChange}
@@ -386,8 +383,8 @@ const AddBuildings = () => {
             <div className="form-group">
               <ReactSelect className="ReactSelect"
                 options={tenants.map((tenant) => ({
-                  value: tenant._id,
-                  label:tenant.tenant_name
+                  value: tenant._id, // Tenant ID (Used Internally)
+                  label:tenant.tenant_name // Tenant Name (Displayed)
                 }))}
                 isMulti={true}
                 onChange={handleTeChange}
@@ -400,8 +397,8 @@ const AddBuildings = () => {
             <div className="form-group">
               <ReactSelect className="ReactSelect"
                 options={notaries.map((notary) => ({
-                  value: notary._id,
-                  label:notary.notary_name
+                  value: notary._id, // Notary ID (Used Internally)
+                  label:notary.notary_name // Notary Name (Displayed)
                 }))}
                 isMulti={true}
                 onChange={handleNoChange}
@@ -415,12 +412,12 @@ const AddBuildings = () => {
 
             <label className="add-building-label">Area (in square meters)</label>
             <div className="form-group">
-              <input type="number" name="area" onChange={(e) => setArea(e.target.value)} min="1"/>
+              <input type="number" name="area" onChange={(e) => setArea(e.target.value)} min="1" required/>
             </div>
 
             <label className="add-building-label">Number of Floors</label>
             <div className="form-group">
-              <input type="number" name="numberOfFloors" onChange={(e) => setNumberOfFloors(e.target.value)} min="1"/>
+              <input type="number" name="numberOfFloors" onChange={(e) => setNumberOfFloors(e.target.value)} min="1" required/>
             </div>
             
 
@@ -431,12 +428,12 @@ const AddBuildings = () => {
 
             <label className="add-building-label" >Building Description in English</label>
             <div className="form-group">
-              <textarea name="en_description" onChange={(e) => setEn_description(e.target.value)} />
+              <textarea name="en_description" onChange={(e) => setEn_description(e.target.value)} required/>
             </div>
 
              <label className="add-building-label" >Building Description in Arabic</label>
             <div className="form-group">
-              <textarea name="ar_description" onChange={(e) => setAr_description(e.target.value)} />
+              <textarea name="ar_description" onChange={(e) => setAr_description(e.target.value)} required/>
             </div>
             
           </div>
@@ -446,18 +443,18 @@ const AddBuildings = () => {
            
              <label className="add-building-label">Date of Construction</label>
             <div className="form-group">
-              <input type="number" name="dateOfConstruction" onChange={(e) => setDateOfConstruction(e.target.value)} min="1900" />
+              <input type="number" name="dateOfConstruction" onChange={(e) => setDateOfConstruction(e.target.value)} min="1900" required/>
             </div>
 
 
             <label className="add-building-label">Documentation Date</label>
             <div className="form-group">
-              <input type="number" name="documentationDate" onChange={(e) => setDocumentationDate(e.target.value)} min="2022"/>
+              <input type="number" name="documentationDate" onChange={(e) => setDocumentationDate(e.target.value)} min="2022" required/>
             </div>
 
             <label className="add-building-label">Building During the Reign</label>
             <div className="form-group">
-              <select name="bdr_id" value={bdr_id} onChange={(e) => setBdrId(e.target.value)}>
+              <select name="bdr_id" value={bdr_id} onChange={(e) => setBdrId(e.target.value)} required>
                 <option value="">
                   Select Reign
                 </option>
@@ -548,7 +545,7 @@ const AddBuildings = () => {
 
             <label className="add-building-label">Street</label>
             <div className="form-group">
-              <input type="text" name="street" onChange={(e) => setStreet(e.target.value)}/>
+              <input type="text" name="street" onChange={(e) => setStreet(e.target.value)} required/>
             </div>
 
             <label className="add-building-label">Coordinates</label>

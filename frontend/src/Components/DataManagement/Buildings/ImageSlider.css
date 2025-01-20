@@ -34,7 +34,7 @@
 /* Image Grid */
 .building-images {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two images per row */
+    grid-template-columns: repeat(3, 1fr); /* Two images per row */
     gap: 20px;
     justify-items: center;
 }
@@ -42,7 +42,7 @@
 /* Image Container */
 .image-container {
     position: relative;
-    width: 620px; /* Half of 1200px */
+    width: 450px; /* Half of 1200px */
     height: 350px;
     overflow: hidden;
     border-radius: 10px;
