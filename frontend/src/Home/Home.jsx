@@ -15,6 +15,7 @@ import {
   faHouseUser,
   faUserShield,
   faCity,
+  faLink,
 } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
@@ -96,6 +97,11 @@ const Home = () => {
                 <li>
                   <Link to="/ShowBuildings" className="Link">
                     <FontAwesomeIcon icon={faBuilding} className="icon" /> Buildings
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/ThsLink" className="Link">
+                    <FontAwesomeIcon icon={faLink} className="icon" /> 360 Link for building
                   </Link>
                 </li>
                 <li>

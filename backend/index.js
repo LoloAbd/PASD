@@ -48,7 +48,8 @@ mongoose.connect(process.env.MONGO_URI, {
   .then(() => console.log('Connected to PASD database'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-let gfs, bucket;
+let gfs;
+let isGfsReady = false;
 
 
 const conn = mongoose.createConnection(process.env.MONGO_URI, {
@@ -114,6 +115,7 @@ conn.once('open', () => {
     gfs = new mongoose.mongo.GridFSBucket(conn.db, {
         bucketName: 'uploads',
     });
+    isGfsReady = true;
     bucket = new GridFSBucket(conn.db, { bucketName: 'uploads' });
 });
 
@@ -186,53 +188,18 @@ app.post("/add-images", upload.single("file"), async (req, res) => {
   }
 });
 
-// Retrieve image by filename
 app.get('/files/:filename', (req, res) => {
-    gfs.openDownloadStreamByName(req.params.filename)
-    .pipe(res)
-    .on('error', (err) => {
-        console.error(err);
-        res.status(404).json({ error: 'File not found' });
-    });
-});
-
-// Your route using the upload middleware
-/*app.post("/cities/:id/upload-map", upload.single("map"), async (req, res) => {
-  const cityId = req.params.id;
-  console.log("Received cityId:", cityId);
-
-  try {
-    const city = await Cities_Model.findById(cityId);
-    console.log("City found:", city);
-
-    if (!city) {
-      return res.status(404).json({ error: "City not found" });
+    if (!isGfsReady) {
+        return res.status(503).json({ error: 'GridFSBucket is not ready yet' });
     }
 
-    city.map = {
-      data: req.file.buffer,
-      contentType: req.file.mimetype,
-    };
-
-    await city.save();
-    res.status(200).json({ message: "Map uploaded successfully" });
-  } catch (error) {
-    console.error("Error uploading map:", error);
-    res.status(500).json({ error: "Failed to upload map" });
-  }
+    gfs.openDownloadStreamByName(req.params.filename)
+        .pipe(res)
+        .on('error', (err) => {
+            console.error(err);
+            res.status(404).json({ error: 'File not found' });
+        });
 });
-
-// Get all PDFs route
-app.get("/pdfs", async (req, res) => {
-  try {
-    const pdfs = await PDF.find({}, "name");
-    res.status(200).json(pdfs);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch PDFs" });
-  }
-});
-
-*/
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -487,18 +454,6 @@ app.put('/notaries/:id', async (req, res) => {
 });
 
 
-// Add city
-/*app.post("/add-cities", async (req, res) => {
-  const { city_name, country_id } = req.body;
-
-    try {
-    const newCity = await Cities_Model.create({country_id, city_name });
-   
-    res.status(201).json({ message: "City added successfully!", cities: newCity});
-  } catch (error) {
-    res.status(500).json({ error: "Error adding city" });
-  }
-});*/
 
 app.post("/add-cities", upload.single("map"), async (req, res) => {
   const { city_name, country_id } = req.body;
@@ -566,16 +521,43 @@ app.get("/status", async (req, res) => {
 
 // Add building testt
 app.post("/AddBuilding", async (req, res) => {
-  const { building_name,area, ar_description,en_description, thsLink, frontImageLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id} = req.body;
+  const { building_name,area, ar_description,en_description, frontImageLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id} = req.body;
 
     try {
-    const newBuilding = await Buildings_Model.create({building_name,area, ar_description,en_description,thsLink, frontImageLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id});
+    const newBuilding = await Buildings_Model.create({building_name,area, ar_description,en_description, frontImageLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id});
    
     res.status(201).json({ message: "Building added successfully!", buildings: newBuilding});
   } catch (error) {
     res.status(500).json({ error: "Error adding building" });
   }
 });
+
+// Add building with a 360 link
+app.put('/buildingsThs/:id', async (req, res) => {
+  const { id } = req.params;
+  const { thsLink} = req.body;
+
+  try {
+
+    const updatedBuilding = await Buildings_Model.findByIdAndUpdate(
+      id,
+      { thsLink},
+      { new: true }
+    );
+
+    if (!updatedBuilding) {
+      console.error("Building not found with ID:", id);
+      return res.status(404).json({ message: 'Building not found' });
+    }
+
+    res.status(200).json(updatedBuilding);
+  } catch (error) {
+    console.error("Error updating building:", error.message);
+    res.status(500).json({ message: 'Error updating building', error: error.message });
+  }
+});
+
+
 
 // fetch all Buildings
 app.get("/get-buildings", async (req, res) => {
@@ -704,27 +686,6 @@ app.post("/add-buildings-architects", async (req, res) => {
     res.status(500).json({ message: "An error occurred while adding Buildings_Architects." });
   }
 });
-
-/*
-//Add Architects
-app.post("/add-architect", async (req, res) => {
-  const { architect_name, architect_image, en_biography, ar_biography} = req.body;
-
-  try {
-    // Create and save the new notary document
-    const newArchitects = new Architects_Model({architect_name, architect_image, en_biography, ar_biography});
-    await newArchitects.save(); // Save to MongoDB
-
-    // Send success response
-    res.status(200).json({message: "Architects added successfully!", architects: newArchitects,});
-  } catch (error) {
-    console.error("Error adding Architects:", error);
-    res.status(500).json({ message: "An error occurred while adding Architects." });
-  }
-});
-
-
-*/
 
 
 // Upload endpoint

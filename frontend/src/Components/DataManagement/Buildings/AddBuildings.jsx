@@ -16,7 +16,6 @@ const AddBuildings = () => {
   const [dateOfConstruction, setDateOfConstruction] = useState("");
   const [documentationDate, setDocumentationDate] = useState("");
   const [area, setArea] = useState("");
-  const [thsLink, setThsLink] = useState("");
   const [en_description, setEn_description] = useState("");
   const [ar_description, setAr_description] = useState("");
   const [numberOfFloors, setNumberOfFloors] = useState("");
@@ -204,7 +203,6 @@ const AddBuildings = () => {
         area,
         en_description,
         ar_description,
-        thsLink,
         dateOfConstruction,
         documentationDate,
         numberOfFloors,
@@ -419,13 +417,7 @@ const AddBuildings = () => {
             <div className="form-group">
               <input type="number" name="numberOfFloors" onChange={(e) => setNumberOfFloors(e.target.value)} min="1" required/>
             </div>
-            
-
-            <label className="add-building-label" >360 View Link</label>
-            <div className="form-group">
-              <input type="text" name="thsLink" onChange={(e) => setThsLink(e.target.value)}/>
-            </div>
-
+          
             <label className="add-building-label" >Building Description in English</label>
             <div className="form-group">
               <textarea name="en_description" onChange={(e) => setEn_description(e.target.value)} required/>
@@ -435,13 +427,8 @@ const AddBuildings = () => {
             <div className="form-group">
               <textarea name="ar_description" onChange={(e) => setAr_description(e.target.value)} required/>
             </div>
-            
-          </div>
 
-          {/* Box 3 */}
-            <div className="form-box">
-           
-             <label className="add-building-label">Date of Construction</label>
+               <label className="add-building-label">Date of Construction</label>
             <div className="form-group">
               <input type="number" name="dateOfConstruction" onChange={(e) => setDateOfConstruction(e.target.value)} min="1900" required/>
             </div>
@@ -451,6 +438,12 @@ const AddBuildings = () => {
             <div className="form-group">
               <input type="number" name="documentationDate" onChange={(e) => setDocumentationDate(e.target.value)} min="2022" required/>
             </div>
+            
+          </div>
+
+          {/* Box 3 */}
+            <div className="form-box">
+          
 
             <label className="add-building-label">Building During the Reign</label>
             <div className="form-group">
@@ -464,6 +457,20 @@ const AddBuildings = () => {
                   </option>
                 ))}
               </select>
+            </div>
+
+            
+             <label className="add-building-label">Status</label>
+            <div className="form-group">
+              <ReactSelect className="ReactSelect"
+                options={status.map((status) => ({
+                  value: status._id,
+                  label: status.status_name,
+                }))}
+                isMulti={true}
+                onChange={handleSChange}
+                placeholder="Select Status"
+              />
             </div>
 
 
@@ -498,20 +505,6 @@ const AddBuildings = () => {
 
           {/* Box 4 */}
           <div className="form-box">
-
-
-             <label className="add-building-label">Status</label>
-            <div className="form-group">
-              <ReactSelect className="ReactSelect"
-                options={status.map((status) => ({
-                  value: status._id,
-                  label: status.status_name,
-                }))}
-                isMulti={true}
-                onChange={handleSChange}
-                placeholder="Select Status"
-              />
-            </div>
 
               <label className="add-building-label">Country</label>
             <div className="form-group">

@@ -14,6 +14,7 @@ import UpdateAdminInfo from "./Components/Admin/UpdateAdminInfo";
 import BuildingImages from "./Components/DataManagement/Buildings/BuildingImages";
 import AddBuildings from "./Components/DataManagement/Buildings/AddBuildings";
 import AddArchitects from "./Components/DataManagement/Architects/AddArchitects";
+import ThsLink from "./Components/DataManagement/Buildings/ThsLink";
 import Home from "./Home/Home";
 import "./Dashboard.css";
 
@@ -192,6 +193,7 @@ function App() {
               <Route path="/BuildingImages" element={<BuildingImages />} />
               <Route path="/AddBuildings" element={<AddBuildings />} />
               <Route path="/AddArchitects" element={<AddArchitects />} />
+              <Route path="/ThsLink" element={<ThsLink />} />
             </>
           ) : (
             <>
