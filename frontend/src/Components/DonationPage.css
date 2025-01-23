@@ -1,0 +1,148 @@
+:root {
+  --white: #fff;
+  --black: #000;
+  --blue: rgb(9, 23, 175);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Helvetica', sans-serif;
+}
+
+.donation-home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--white);
+}
+
+.donation-wrapper {
+    margin-top: 25px;
+    position: relative;
+    width: 500px;
+    height: 600px;
+    background: var(--white);
+    border: 2px solid var(--black);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.donation-form-box {
+   position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+}
+
+.donation-title {
+  margin-bottom: 20px;
+  font-size: 38px;
+  color: var(--black);
+  text-align: center;
+  position: relative;
+}
+
+.donation-title::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 4px;
+  background: var(--black);
+}
+
+.donation-text {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: var(--black);
+}
+
+.donation-link {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.donation-link:hover {
+  text-decoration: underline;
+}
+
+.donation-input-box {
+  position: relative;
+  width: 100%;
+  margin: 30px;
+}
+
+.donation-input-box input,
+.donation-input-box textarea {
+    width: 90%;
+    height: 50px;
+    background: transparent;
+    color: var(--black);
+    font-size: 22px;
+    font-weight: 500;
+    border: none;
+    outline: none;
+    border-bottom: 2px solid var(--black);
+    padding-right: 40px; /* Space for the icon */
+    transition: 0.5s;
+}
+
+.donation-input-box input:focus,
+.donation-input-box input:valid,
+.donation-input-box textarea:focus,
+.donation-input-box textarea:valid {
+  border-bottom-color: var(--blue);
+}
+
+.donation-input-box label {
+  margin-top: 10px;
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 16px;
+  color: var(--black);
+  pointer-events: none;
+  transition: 0.5s;
+}
+
+.donation-input-box input:focus ~ label,
+.donation-input-box input:valid ~ label,
+.donation-input-box textarea:focus ~ label,
+.donation-input-box textarea:valid ~ label {
+  top: -25px;
+  font-size: 12px;
+  color: var(--blue);
+}
+
+.donation-btn {
+  margin-top: 20px;
+  width: 70%;
+  height: 45px;
+  background-color: var(--black);
+  color: var(--white);
+  border: none;
+  outline: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.3s;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.donation-btn:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
