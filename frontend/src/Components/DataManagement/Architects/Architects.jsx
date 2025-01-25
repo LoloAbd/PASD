@@ -21,6 +21,7 @@ const Architects = () => {
   const [isEditFormVisible, setIsEditFormVisible] = useState(false);
   const [editName, setEditName] = useState("");
   const [editEnBio, setEditEnBio] = useState("");
+  const [editfilename, setEditfilename] = useState("");
   const [editArBio, setEditArBio] = useState("");
   const [editId, setEditId] = useState(null);
 
@@ -76,6 +77,7 @@ const Architects = () => {
     setEditName(architect.architect_name);
     setEditEnBio(architect.en_biography);
     setEditArBio(architect.ar_biography);
+    setEditfilename(architect.filename);
     setEditId(architect._id);
     setIsEditFormVisible(true);
   };
@@ -88,6 +90,7 @@ const Architects = () => {
       architect_name: editName,
       en_biography: editEnBio,
       ar_biography: editArBio,
+      filename: editfilename,
     };
 
     try {
@@ -132,36 +135,45 @@ const Architects = () => {
   return (
     <div className="table-container">
       {isEditFormVisible ? (
-        <div className="AddAdminWrapper" style={{ height: "550px" }}>
+        <div className="AddAdminWrapper" style={{ height: "580px" }}>
           <div className="AddAdminFormBox">
             <h2 className="AddAdminTitle">Edit Architect</h2>
             <form>
               <div className="AddAdminInputBox">
+                <label className="Edit-label">Architect Name:</label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                 />
-                <label>Architect Name:</label>
               </div>
-              <label className="add-building-label">Arabic Biography</label>
+              <label className="Edit-label">Arabic Biography</label>
               <div className="form-group">
                 <textarea
                   value={editArBio}
                   onChange={(e) => setEditArBio(e.target.value)}
                 />
               </div>
-              <label className="add-building-label">English Biography</label>
+              <label className="Edit-label">English Biography</label>
               <div className="form-group">
                 <textarea
                   value={editEnBio}
                   onChange={(e) => setEditEnBio(e.target.value)}
                 />
               </div>
+              
+              <label className="Edit-label">Architect Image</label>
+              <div className="form-group">
+                <textarea
+                  value={editfilename}
+                  onChange={(e) => setEditfilename(e.target.value)}
+                />
+              </div>
+
               <button
                 type="button"
                 className="AddAdminBtn"
-                style={{ width: "170px", marginTop: "30px" }}
+                style={{ width: "170px", marginTop: "10px" }}
                 onClick={handleSaveChanges}
               >
                 Save Changes
@@ -218,13 +230,14 @@ const Architects = () => {
             />
             <button className="btn btn-primary add-button" onClick={() => navigate("/AddArchitects")}  >+</button>
           </div>
-          <table className="custom-table" style={{ width: "1000px" }}>
+          <table className="custom-table" style={{ width: "1200px" }}>
             <thead>
               <tr>
                 <th style={{ width: "70px" }}><AiOutlineFieldNumber /></th>
                 <th onClick={() => handleSort("architect_name")}>Architect Name <BiSortAlt2 /></th>
-                <th onClick={() => handleSort("en_biography")} style={{ width: "550px" }}>English Biography <BiSortAlt2 /></th>
-                <th style={{ width: "250px" }}>Actions</th>
+                    <th onClick={() => handleSort("en_biography")} style={{ width: "550px" }}>English Biography <BiSortAlt2 /></th>
+                    <th>Architect Image</th>
+                <th style={{ width: "200px" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -234,6 +247,9 @@ const Architects = () => {
                     <td >{indexOfFirstItem + index + 1}</td>
                     <td>{architect.architect_name}</td>
                     <td>{architect.en_biography}</td>
+                    <td>
+                      <img src={architect.filename} alt={architect.architect_name} style={{ width: "170px", height: "160px" }}/>
+                    </td>
                     <td>
                       <button className="edit-button" onClick={() => handleEdit(architect)} >
                         <FaEdit />

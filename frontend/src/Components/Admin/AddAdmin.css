@@ -42,7 +42,7 @@
 }
 
 .AddAdminFormBox .AddAdminTitle {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     font-size: 38px;
     color: var(--black);
     text-align: center;
@@ -56,23 +56,23 @@
     left: 50%;
     transform: translateX(-50%);
     width: 40px;
-    height: 4px;
+    height: 35x;
     background: var(--black);
 }
 
 .AddAdminInputBox {
     position: relative;
     width: 100%;
-    margin: 30px 0; /* Increased margin for better spacing */
+    margin: 20px 0; /* Increased margin for better spacing */
 }
 
 .AddAdminInputBox input,
 .AddAdminInputBox select {
     width: 100%;
-    height: 50px;
+    height: 45px;
     background: transparent;
     color: var(--black);
-    font-size: 22px;
+    font-size: 17px;
     font-weight: 500;
     border: none;
     outline: none;
@@ -83,12 +83,20 @@
 
 .AddAdminInputBox input:focus,
 .AddAdminInputBox input:valid,
+.AddAdminInputBox textarea:focus,
+.AddAdminInputBox textarea:valid,
 .AddAdminInputBox select:focus,
 .AddAdminInputBox select:valid {
     border-bottom-color: var(--blue);
 }
 
+.Edit-label{
+    color: #040a4c;
+}
+
 .AddAdminInputBox label {
+    margin-top: 15px;
+    margin-bottom: 10px;
     position: absolute;
     top: -20px; /* Position above the input */
     left: 0;
@@ -100,6 +108,8 @@
 
 .AddAdminInputBox input:focus ~ label,
 .AddAdminInputBox input:valid ~ label,
+.AddAdminInputBox textarea:focus ~ label,
+.AddAdminInputBox textarea:valid ~ label,
 .AddAdminInputBox select:focus ~ label,
 .AddAdminInputBox select:valid ~ label {
     top: -25px; /* Move label slightly higher on focus/valid */
@@ -124,9 +134,9 @@
 }
 
 .AddAdminBtn {
-    margin-top: 20px;
+    margin-top: 10px;
     width: 70%;
-    height: 45px;
+    height: 40px;
     background-color: var(--black);
     color: var(--white);
     border: none;

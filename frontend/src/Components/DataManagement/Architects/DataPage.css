@@ -106,6 +106,7 @@
 }
 
 .view-button {
+  cursor: pointer;
   background-color: #091ce7; 
 }
 
@@ -146,6 +147,7 @@ td{
 .view-images{
   width: 30px;
   height: 30px;
+  cursor: pointer;
   background-color: #d49efb; 
 }
 
@@ -160,5 +162,17 @@ td{
   text-align: center;
   width: 30px;
   height: 30px;
+  cursor: pointer;
   font-size: x-large;
+}
+.save-button{
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+  color: #ffffff;
+  background-color: #01490a;
+}
+
+.save-button:hover{
+  background-color: #ac0000;
 }

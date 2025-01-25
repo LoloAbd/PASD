@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const Admin = require('./models/Admin');
 const models = require('./models/Data');
-const multer = require('multer');
-const { GridFSBucket } = require('mongodb');
 const {
     Status_Model,
     Usage_Model,
@@ -48,8 +46,6 @@ mongoose.connect(process.env.MONGO_URI, {
   .then(() => console.log('Connected to PASD database'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-let gfs;
-let isGfsReady = false;
 
 
 const conn = mongoose.createConnection(process.env.MONGO_URI, {
@@ -58,10 +54,9 @@ const conn = mongoose.createConnection(process.env.MONGO_URI, {
 });
 
 
+// insert logs
 app.post('/logs', async (req, res) => {
   const { action, details, timestamp, adminUsername } = req.body;
-  
-
   try {
       const detailsString = typeof details === 'object' ? JSON.stringify(details) : details;
 
@@ -83,6 +78,9 @@ app.post('/logs', async (req, res) => {
     }
 });
 
+
+// get each admin logs
+
 app.get('/logs/:adminUsername', async (req, res) => {
     try {
         const logs = await Log.find({ adminUsername: req.params.adminUsername });
@@ -92,148 +90,6 @@ app.get('/logs/:adminUsername', async (req, res) => {
         res.status(500).send({ message: 'Error fetching logs' });
     }
 });
-
-
-app.delete('/deleteAdmin/:adminId', async (req, res) => {
-  try {
-    const admin = await AdminModel.findByIdAndDelete(req.params.adminId);
-
-    if (!admin) {
-      return res.status(404).send({ message: 'Admin not found' });
-    }
-
-    res.status(200).send({ message: 'Admin deleted successfully' });
-  } catch (error) {
-    console.error("Error deleting admin:", error);
-    res.status(500).send({ message: 'Error deleting admin' });
-  }
-});
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Initialize GridFS and bucket
-conn.once('open', () => {
-    gfs = new mongoose.mongo.GridFSBucket(conn.db, {
-        bucketName: 'uploads',
-    });
-    isGfsReady = true;
-    bucket = new GridFSBucket(conn.db, { bucketName: 'uploads' });
-});
-
-// Multer setup for file upload
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-
-// Upload endpoint
-app.post("/add-images", upload.single("file"), async (req, res) => {
-  try {
-    // Validate the file
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-
-    // Parse form data
-    const { building_id, description, Type, referenceType, pictureReference } = req.body;
-
-    // Validate required fields
-    if (!building_id || !Type) {
-      return res.status(400).json({ error: "Building ID, and Type are required" });
-    }
-
-    // Create a writable stream to GridFS
-    const stream = gfs.openUploadStream(req.file.originalname, {
-      contentType: req.file.mimetype,
-    });
-
-    // Upload the file buffer to the stream
-    stream.end(req.file.buffer);
-
-    // Handle stream events
-    stream.on("finish", async () => {
-      try {
-        // Save file metadata and additional details in the images collection
-        const imageDoc = await conn.db.collection("images").insertOne({
-          fileId: stream.id,
-          building_id,
-          description,
-          Type, // Combined type and number (e.g., "Floor 2")
-          referenceType, // "ownedByPASD" or "pictureReference"
-          pictureReference: referenceType === "pictureReference" ? pictureReference : null, // Only include if referenceType is "pictureReference"
-          filename: req.file.originalname,
-        });
-
-        res.status(200).json({
-          message: "File uploaded successfully",
-          file: {
-            id: stream.id,
-            building_id,
-            description,
-            Type,
-            referenceType,
-            pictureReference: referenceType === "pictureReference" ? pictureReference : null,
-          },
-        });
-      } catch (error) {
-        console.error("Error saving file metadata:", error);
-        res.status(500).json({ error: "Failed to save image metadata" });
-      }
-    });
-
-    stream.on("error", (err) => {
-      console.error("Stream error:", err);
-      res.status(500).json({ error: "File upload failed" });
-    });
-  } catch (error) {
-    console.error("Error handling request:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-app.get('/files/:filename', (req, res) => {
-    if (!isGfsReady) {
-        return res.status(503).json({ error: 'GridFSBucket is not ready yet' });
-    }
-
-    gfs.openDownloadStreamByName(req.params.filename)
-        .pipe(res)
-        .on('error', (err) => {
-            console.error(err);
-            res.status(404).json({ error: 'File not found' });
-        });
-});
-
-
-// Delete endpoint
-app.delete('/delete-image/:fileId', async (req, res) => {
-    try {
-        const { fileId } = req.params;
-
-        // Convert fileId to ObjectId
-        const objectId = new mongoose.Types.ObjectId(fileId);
-
-        // Delete the file from GridFS
-        gfs.delete(objectId, async (err) => {
-            if (err) {
-                console.error('Error deleting file from GridFS:', err);
-                return res.status(500).json({ error: 'Failed to delete file from GridFS' });
-            }
-
-            // Delete the file metadata from the images collection
-            const deleteResult = await conn.db.collection('images').deleteOne({ fileId: objectId });
-
-            if (deleteResult.deletedCount === 0) {
-                console.error('File metadata not found in images collection');
-                return res.status(404).json({ error: 'File metadata not found' });
-            }
-
-            res.status(200).json({ message: 'File deleted successfully' });
-        });
-    } catch (error) {
-        console.error('Error deleting file:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -312,7 +168,84 @@ app.get('/getAdmins', async (req, res) => {
     }
 });
 
-// API Endpoint to Fetch Buildings
+// delete admin by id
+app.delete('/deleteAdmin/:adminId', async (req, res) => {
+  try {
+    const admin = await AdminModel.findByIdAndDelete(req.params.adminId);
+
+    if (!admin) {
+      return res.status(404).send({ message: 'Admin not found' });
+    }
+
+    res.status(200).send({ message: 'Admin deleted successfully' });
+  } catch (error) {
+    console.error("Error deleting admin:", error);
+    res.status(500).send({ message: 'Error deleting admin' });
+  }
+});
+
+// get all images
+app.get("/images", async (req, res) => {
+try {
+      const images = await Images_Model.find();
+      res.status(200).json(images);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching images" });
+  }
+});
+
+// insert images
+app.post("/add-images", async (req, res) => {
+  try {
+    const { building_id, Type, description, referenceType, pictureReference, filename } = req.body;
+
+    // Validate required fields
+    if (!building_id || !Type || !filename) {
+      return res.status(400).json({ message: "Building ID, type, and image URL are required" });
+    }
+
+    // Create a new building image
+    const newImage = new Images_Model({
+      building_id,
+      Type,
+      description,
+      referenceType,
+      pictureReference,
+      filename,
+    });
+
+    // Save the image to the database
+    await newImage.save();
+
+    res.status(201).json({ message: "Image added successfully", images: newImage });
+  } catch (error) {
+    console.error("Error adding image:", error);
+    res.status(500).json({ message: "Failed to add image" });
+  }
+});
+
+
+// Delete image
+app.delete('/delete-image/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Delete the image from the database
+        const result = await Images_Model.findByIdAndDelete(id);
+
+        if (!result) {
+            return res.status(404).json({ error: 'Image not found' });
+        }
+
+        res.status(200).json({ message: 'Image deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        res.status(500).json({ error: 'Failed to delete image' });
+    }
+});
+
+
+// Fetch Buildings
 app.get('/buildings', async (req, res) => {
   try {
         const buildings = await Buildings_Model.find(); // Fetch all Building
@@ -323,7 +256,7 @@ app.get('/buildings', async (req, res) => {
   }
 });
 
-// API Endpoint to Fetch a Building by ID
+//Fetch a Building by ID
 app.get('/buildings/:id', async (req, res) => {
   try {
     const building = await Buildings_Model.findById(req.params.id);
@@ -337,8 +270,24 @@ app.get('/buildings/:id', async (req, res) => {
   }
 });
 
+
+
+app.get('/addresses/:id', async (req, res) => {
+  try {
+    const address = await Addresses_Model.findById(req.params.id);
+    if (!address) {
+      return res.status(404).json({ error: 'Address not found' });
+    }
+    res.status(200).json(address);
+  } catch (error) {
+    console.error('Error fetching address:', error);
+    res.status(500).json({ error: 'Failed to fetch address' });
+  }
+});
+
+
 // Update Building Endpoint
-app.put('/update-buildings/:id', async (req, res) => {
+/*app.put('/update-buildings/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updatedData = req.body;
@@ -364,6 +313,43 @@ app.put('/update-buildings/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+*/
+app.put('/update-buildings/:id', async (req, res) => {
+  try {
+    const updatedBuilding = await Buildings_Model.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedBuilding) {
+      return res.status(404).json({ error: 'Building not found' });
+    }
+    res.status(200).json(updatedBuilding);
+  } catch (error) {
+    console.error('Error updating building:', error);
+    res.status(500).json({ error: 'Failed to update building' });
+  }
+});
+
+app.put('/update-addresses/:id', async (req, res) => {
+  try {
+    const updatedAddress = await Addresses_Model.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedAddress) {
+      return res.status(404).json({ error: 'Address not found' });
+    }
+    res.status(200).json(updatedAddress);
+  } catch (error) {
+    console.error('Error updating address:', error);
+    res.status(500).json({ error: 'Failed to update address' });
+  }
+});
+
+
+
 
 // API Endpoint to Fetch Notaries
 app.get('/notaries', async (req, res) => {
@@ -376,7 +362,6 @@ app.get('/notaries', async (req, res) => {
   }
 });
 
-
 // API Endpoint to Fetch Owners
 app.get('/owners', async (req, res) => {
   try {
@@ -387,7 +372,6 @@ app.get('/owners', async (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 // API Endpoint to Fetch Tenant
 app.get('/tenants', async (req, res) => {
@@ -437,15 +421,6 @@ app.get("/cities", async (req, res) => {
 });
 
 
-app.get("/images", async (req, res) => {
-try {
-      const images = await Images_Model.find();
-      res.status(200).json(images);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching images" });
-  }
-});
-
 
 // Fetch Cities
 app.get("/get-cities", async (req, res) => {
@@ -456,23 +431,6 @@ app.get("/get-cities", async (req, res) => {
     res.status(500).json({ error: "Error fetching cities" });
   }
 });
-
-app.get("/cities/:id/map", async (req, res) => {
-  try {
-    const city = await Cities_Model.findById(req.params.id);
-
-    if (!city || !city.map || !city.map.data) {
-      return res.status(404).json({ error: "Map not found" });
-    }
-
-    res.set("Content-Type", city.map.contentType);
-    res.send(city.map.data);
-  } catch (error) {
-    console.error("Error fetching map:", error);
-    res.status(500).json({ error: "Failed to fetch map" });
-  }
-});
-
 
 
 // Fetch Addresses
@@ -485,26 +443,8 @@ app.get("/get-addresses", async (req, res) => {
   }
 });
 
-app.delete('/notaries/:id', async (req, res) => {
-    const id = req.params.id;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ message: 'Invalid ID format' });
-    }
 
-    try {
-        const deletedNotary = await Notaries_Model.findByIdAndDelete(id);
-        if (!deletedNotary) {
-            return res.status(404).json({ message: 'Notary not found' });
-        }
-        res.json({ message: 'Notary deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting notary:', error);
-        res.status(500).json({ message: 'Error deleting notary', error });
-    }
-});
-
-
-
+// Update notary name
 app.put('/notaries/:id', async (req, res) => {
     const { id } = req.params;
   const update = req.body;
@@ -525,34 +465,62 @@ app.put('/notaries/:id', async (req, res) => {
 });
 
 
-
-app.post("/add-cities", upload.single("map"), async (req, res) => {
-  const { city_name, country_id } = req.body;
-
+// Add City
+app.post("/add-cities", async (req, res) => {
   try {
-    // Create the city with the provided data
-    const newCity = new Cities_Model({
-      country_id,
-      city_name,
-    });
+    const { city_name, country_id, map } = req.body;
 
-    // Attach the map file if it exists
-    if (req.file) {
-      newCity.map = {
-        data: req.file.buffer,
-        contentType: req.file.mimetype,
-      };
+    // Validate required fields
+    if (!city_name || !country_id || !map) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Save the city in the database
+    // Create a new city
+    const newCity = new Cities_Model({
+      city_name,
+      country_id,
+      map,
+    });
+
+    // Save the city to the database
     await newCity.save();
 
-    res.status(201).json({ message: "City and map added successfully!", city: newCity });
+    res.status(201).json({ message: "City added successfully", cities: newCity });
   } catch (error) {
-    console.error("Error adding city with map:", error);
-    res.status(500).json({ error: "Failed to add city with map" });
+    console.error("Error adding city:", error);
+    res.status(500).json({ message: "Failed to add city" });
   }
 });
+
+// Update city
+app.put("/update-city/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { city_name, country_id, map } = req.body;
+
+    // Validate required fields
+    if (!city_name || !country_id || !map) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Find the city by ID and update it
+    const updatedCity = await Cities_Model.findByIdAndUpdate(
+      id,
+      { city_name, country_id, map },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedCity) {
+      return res.status(404).json({ message: "City not found" });
+    }
+
+    res.status(200).json({ message: "City updated successfully", cities: updatedCity });
+  } catch (error) {
+    console.error("Error updating city:", error);
+    res.status(500).json({ message: "Failed to update city" });
+  }
+});
+
 
 // fetch all Architects
 app.get("/Architects", async (req, res) => {
@@ -592,16 +560,18 @@ app.get("/status", async (req, res) => {
 
 // Add building testt
 app.post("/AddBuilding", async (req, res) => {
-  const { building_name,area, ar_description,en_description, frontImageLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id} = req.body;
+  const { building_name,area, ar_description,en_description, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id} = req.body;
 
     try {
-    const newBuilding = await Buildings_Model.create({building_name,area, ar_description,en_description, frontImageLink, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id});
+    const newBuilding = await Buildings_Model.create({building_name,area, ar_description,en_description, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id});
    
     res.status(201).json({ message: "Building added successfully!", buildings: newBuilding});
   } catch (error) {
     res.status(500).json({ error: "Error adding building" });
   }
 });
+
+
 
 // Add building with a 360 link
 app.put('/buildingsThs/:id', async (req, res) => {
@@ -759,58 +729,37 @@ app.post("/add-buildings-architects", async (req, res) => {
 });
 
 
-// Upload endpoint
-app.post('/add-architect', upload.single('file'), async (req, res) => {
+// Add Architect
+app.post('/add-architect', async (req, res) => {
     try {
-        // Validate the file
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
+        const { architect_name, ar_biography, en_biography, filename } = req.body; // Get the name, biography, and image URL from the request body
+
+        // Validate required fields
+        if (!architect_name || !ar_biography || !en_biography || !filename) {
+            return res.status(400).json({ error: 'All fields are required, including the image URL' });
         }
 
-        const { architect_name, ar_biography,  en_biography} = req.body; // Get the name and biography from the request body
-
-        // Create a writable stream to GridFS
-        const stream = gfs.openUploadStream(req.file.originalname, {
-            contentType: req.file.mimetype,
+        // Save architect details in the architects collection
+        const architectsDoc = await conn.db.collection('architects').insertOne({
+            architect_name,
+            ar_biography,
+            en_biography,
+            filename, // Store the image URL directly
         });
 
-        // Upload the file buffer to the stream
-        stream.end(req.file.buffer);
-
-        // Handle stream events
-        stream.on('finish', async () => {
-            try {
-                // Save file metadata and additional details in the architects collection
-                const architectsDoc = await conn.db.collection('architects').insertOne({
-                    fileId: stream.id,
-                    architect_name,
-                    ar_biography,
-                    en_biography,
-                    filename: req.file.originalname,
-                });
-
-                res.status(200).json({
-                    message: 'File uploaded successfully',
-                    file: {
-                        id: stream.id,
-                        architect_name,
-                        ar_biography,
-                        en_biography
-                    },
-                });
-            } catch (error) {
-                console.error('Error saving file metadata:', error);
-                res.status(500).json({ error: 'Failed to save architect' });
-            }
-        });
-
-        stream.on('error', (err) => {
-            console.error('Stream error:', err);
-            res.status(500).json({ error: 'Architect Add failed' });
+        res.status(200).json({
+            message: 'Architect added successfully',
+            architect: {
+                id: architectsDoc.insertedId,
+                architect_name,
+                ar_biography,
+                en_biography,
+                filename,
+            },
         });
     } catch (error) {
-        console.error('Error handling request:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error saving architect:', error);
+        res.status(500).json({ error: 'Failed to add architect' });
     }
 });
 
@@ -819,13 +768,13 @@ app.post('/add-architect', upload.single('file'), async (req, res) => {
 // Edit Arch
 app.put('/architects/:id', async (req, res) => {
   const { id } = req.params;
-  const { architect_name, en_biography, ar_biography} = req.body;
+  const { architect_name, en_biography, ar_biography, filename} = req.body;
 
   try {
 
     const updatedArchitect = await Architects_Model.findByIdAndUpdate(
       id,
-      { architect_name, ar_biography, en_biography},
+      { architect_name, ar_biography, en_biography, filename},
       { new: true }
     );
 
@@ -1193,32 +1142,6 @@ app.get('/buildings/:id/usage', async (req, res) => {
 });
 
 
-app.get('/images-by-building/:buildingId', async (req, res) => {
-    const { building_id } = req.params;
-
-    try {
-        // Validate building existence
-        const building = await Buildings_Model.findById(building_id);
-        if (!building) {
-            return res.status(404).json({ error: 'Building not found' });
-        }
-
-        // Fetch images for the building
-        const images = await Image.find({ building_id: building_id }).select('image description');
-
-        res.json({
-            building: {
-                id: building._id,
-                name: building.building_name,
-            },
-            images,
-        });
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        res.status(500).json({ error: 'An error occurred' });
-    }
-});
-
 
 
 app.get('/buildings/:building_id', async (req, res) => {
@@ -1235,6 +1158,7 @@ app.get('/buildings/:building_id', async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 });
+
 
 app.get('/buildings/:building_id/images', async (req, res) => {
   try {

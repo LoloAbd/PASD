@@ -7,8 +7,7 @@ const AddArchitects = () => {
   const [architect_name, setArchitectName] = useState("");
   const [ar_biography, setAr_biography] = useState("");
   const [en_biography, setEn_biography] = useState("");
-  const [file, setFile] = useState(null);
-  const fileInputRef = useRef(null);
+  const [file, setFile] = useState("");
   const navigate = useNavigate();
 
 
@@ -25,17 +24,12 @@ const AddArchitects = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!file) {
-      alert("Please upload an image.");
-      return;
-    }
-
     try {
       const formData = new FormData();
       formData.append("file", file); // file to upload
       formData.append("architect_name", architect_name); // name of the architect
       formData.append("ar_biography", ar_biography); // biography of the architect
-       formData.append("en_biography", en_biography);
+      formData.append("en_biography", en_biography);
 
       const response = await axios.post("http://localhost:3001/add-architect", formData, {
         headers: {
@@ -87,20 +81,20 @@ const AddArchitects = () => {
               name="en_biography"
               onChange={(e) => setEn_biography(e.target.value)}
             />
-          </div>
-
-          <div className="AddAdminInputBox">
-            <label htmlFor="image">Upload Image</label>
+            </div>
+            
+            <div className="AddAdminInputBox">
+            <label htmlFor="image">Image URL</label>
             <input
-              type="file"
+              type="text"
               id="fileInput"
               name="file"
-              accept=".png, .jpg, .jpeg"
-              onChange={handleFileChange}
-              ref={fileInputRef}
+              value={file}
+              onChange={(e) => setFile(e.target.value)}
               required
             />
           </div>
+
 
           <button type="submit" className="submit-button" style={{marginLeft : "15px"}}>Add Architect</button>
           <button className="submit-button " style={{marginLeft : "20px"}} onClick={Back} > Back to Architects </button>

@@ -20,12 +20,11 @@ const BuildingImages = () => {
   const [buildings, setBuildings] = useState([]);
   const [building_id, setBuildingId] = useState("");
   const [description, setDescription] = useState("");
-  const [file, setFile] = useState(null);
+  const [filename, setImageUrl] = useState(""); // Changed from file to URL
   const [referenceType, setReferenceType] = useState("ownedByPASD");
   const [pictureReference, setPictureReference] = useState("");
   const [selectedOption, setSelectedOption] = useState(null);
   const [number, setNumber] = useState("");
-  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   // Fetch buildings data
@@ -36,15 +35,12 @@ const BuildingImages = () => {
       .catch((err) => console.error("Error fetching buildings:", err));
   }, []);
 
-  // Handle file selection
-  const handleFileChange = (e) => setFile(e.target.files[0]);
-
   // Handle form submission
   const handleSubmit = async (e, action) => {
     e.preventDefault();
 
-    if (!file) {
-      alert("Please upload an image.");
+    if (!filename) {
+      alert("Please provide an image URL.");
       return;
     }
 
@@ -54,37 +50,34 @@ const BuildingImages = () => {
         ? `${selectedOption.label} ${number}`
         : selectedOption?.label || "";
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("building_id", building_id);
-    formData.append("Type", typeWithNumber); // Append combined type and number
-    formData.append("description", description);
-    formData.append("referenceType", referenceType);
-    formData.append("pictureReference", pictureReference);
+    const payload = {
+      building_id,
+      Type: typeWithNumber,
+      description,
+      referenceType,
+      pictureReference,
+      filename, // Send the image URL instead of a file
+    };
 
     try {
-      await axios.post("http://localhost:3001/add-images", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios.post("http://localhost:3001/add-images", payload);
 
       alert("Image added successfully!");
       // Find the selected building name from the building_id
-      const selectedBuilding = buildings.find(b => b._id === building_id);
-      logAction("Add Building image", { building_name: selectedBuilding ? selectedBuilding.building_name : "Unknown" });
-
-
+      const selectedBuilding = buildings.find((b) => b._id === building_id);
+      logAction("Add Building image", {
+        building_name: selectedBuilding ? selectedBuilding.building_name : "Unknown",
+      });
 
       if (action === "submit") {
         navigate("/");
       } else {
         // Reset form fields
         setDescription("");
-        setBuildingId("");
-        setFile(null);
+        setImageUrl("");
         setSelectedOption(null);
         setNumber("");
         setPictureReference("");
-        fileInputRef.current.value = ""; // Reset file input
       }
     } catch (error) {
       console.error("Error adding image:", error);
@@ -117,8 +110,6 @@ const BuildingImages = () => {
                 </select>
               </div>
 
-              
-
               <div className="InputGroup">
                 <Select
                   options={options}
@@ -131,9 +122,9 @@ const BuildingImages = () => {
                   className="react-select"
                   classNamePrefix="react-select"
                 />
-                {selectedOption && 
+                {selectedOption &&
                   (selectedOption.value === "drawing" ||
-                  selectedOption.value === "photo" ||
+                    selectedOption.value === "photo" ||
                     selectedOption.value === "floorPlan" ||
                     selectedOption.value === "sections" ||
                     selectedOption.value === "elevations") && (
@@ -154,7 +145,6 @@ const BuildingImages = () => {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  
                 />
               </div>
             </div>
@@ -162,13 +152,13 @@ const BuildingImages = () => {
             {/* Right Column */}
             <div className="form-column">
               <div className="InputGroup">
-                <label htmlFor="image">Upload Image</label>
+                <label htmlFor="filename">Image URL</label>
                 <input
-                  type="file"
-                  id="fileInput"
-                  accept=".png, .jpg, .jpeg"
-                  onChange={handleFileChange}
-                  ref={fileInputRef}
+                  type="url"
+                  id="filename"
+                  value={filename}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="Enter image URL"
                   required
                 />
               </div>
@@ -207,11 +197,13 @@ const BuildingImages = () => {
 
               {/* Buttons */}
               <div className="button-container">
-                <button type="submit" className="BuildingImagesBtn">
+                <button type="button" 
+                  onClick={(e) => handleSubmit(e, "button")}
+                  className="BuildingImagesBtn">
                   Add Another Image
                 </button>
                 <button
-                  type="button"
+                  type="submit"
                   onClick={(e) => handleSubmit(e, "submit")}
                   className="BuildingImagesBtn"
                 >

@@ -9,7 +9,13 @@ const EditBuilding = () => {
     en_description: '',
     ar_description: '',
     dateOfConstruction: '',
-    documentationDate: ''
+    documentationDate: '',
+    address_id: '', // Address ID from the building document
+  });
+
+  const [address, setAddress] = useState({
+    street: '',
+    coordinates: [], // Coordinates as an array [latitude, longitude]
   });
 
   const { id } = useParams(); // Extract the building ID from the URL
@@ -24,9 +30,22 @@ const EditBuilding = () => {
           throw new Error('Failed to fetch building');
         }
         const data = await response.json();
-        setBuilding(data); // Update the state with the fetched data
+        setBuilding(data); // Update the state with the fetched building data
+
+        // Fetch the address data based on the address_id
+        if (data.address_id) {
+          const addressResponse = await fetch(`http://localhost:3001/addresses/${data.address_id}`);
+          if (!addressResponse.ok) {
+            throw new Error('Failed to fetch address');
+          }
+          const addressData = await addressResponse.json();
+          setAddress({
+            ...addressData,
+            coordinates: addressData.coordinates.join(', '), // Convert array to string for display
+          });
+        }
       } catch (error) {
-        alert('Failed to fetch building data. Please try again later.');
+        alert('Failed to fetch building or address data. Please try again later.');
       }
     };
 
@@ -37,29 +56,70 @@ const EditBuilding = () => {
     const { name, value } = e.target;
     setBuilding((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
+    }));
+  };
+
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddress((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleCoordinatesChange = (e) => {
+    const { value } = e.target;
+    // Convert the input string to an array of numbers
+    const coordinatesArray = value
+      .split(',')
+      .map((coord) => parseFloat(coord.trim()))
+      .filter((coord) => !isNaN(coord)); // Remove invalid values
+    setAddress((prevState) => ({
+      ...prevState,
+      coordinates: coordinatesArray,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:3001/update-buildings/${id}`, {
+      // Update the building details
+      const buildingResponse = await fetch(`http://localhost:3001/update-buildings/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(building)
+        body: JSON.stringify(building),
       });
-      if (response.ok) {
-        alert('Building updated successfully!');
-        navigate('/ShowBuildings'); // Redirect to buildings list
-      } else {
+
+      if (!buildingResponse.ok) {
         throw new Error('Failed to update building');
       }
+
+      // Update the address details
+      if (building.address_id) {
+        const addressResponse = await fetch(`http://localhost:3001/update-addresses/${building.address_id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...address,
+            coordinates: address.coordinates, // Ensure coordinates are sent as an array
+          }),
+        });
+
+        if (!addressResponse.ok) {
+          throw new Error('Failed to update address');
+        }
+      }
+
+      alert('Building and address updated successfully!');
+      navigate('/ShowBuildings'); // Redirect to buildings list
     } catch (error) {
-      console.error('Error updating building:', error);
-      alert('Failed to update building. Please try again.');
+      console.error('Error updating building or address:', error);
+      alert('Failed to update building or address. Please try again.');
     }
   };
 
@@ -72,7 +132,6 @@ const EditBuilding = () => {
       <h1 className="add_Buildings_h">Edit Building</h1>
       <form className="add-building-form" onSubmit={handleSubmit}>
         <div className="form-boxes">
-
           <div className="form-box">
             <label className="add-building-label">Building Name</label>
             <div className="form-group">
@@ -119,9 +178,6 @@ const EditBuilding = () => {
               />
             </div>
 
-          </div>
-          
-          <div className="form-box">
             <label className="add-building-label">Building Description in Arabic</label>
             <div className="form-group">
               <textarea
@@ -131,7 +187,9 @@ const EditBuilding = () => {
                 required
               />
             </div>
+          </div>
 
+          <div className="form-box">
             <label className="add-building-label">Date of Construction</label>
             <div className="form-group">
               <input
@@ -156,20 +214,43 @@ const EditBuilding = () => {
               />
             </div>
 
-          <button type="submit" className="submit-button">
-            Update Building
-          </button>
-          <button
-            type="button"
-            className="submit-button"
-            style={{ marginLeft: '20px' }}
-            onClick={Back}
-          >
-            Back to Buildings
-          </button>
+            {/* Address Fields */}
+            <label className="add-building-label">Street</label>
+            <div className="form-group">
+              <input
+                type="text"
+                name="street"
+                value={address.street}
+                onChange={handleAddressChange}
+                required
+              />
+            </div>
+
+            <label className="add-building-label">Coordinates</label>
+            <div className="form-group">
+              <input
+                type="text"
+                name="coordinates"
+                value={Array.isArray(address.coordinates) ? address.coordinates.join(', ') : address.coordinates}
+                onChange={handleCoordinatesChange}
+                placeholder="latitude, longitude"
+                required
+              />
+            </div>
+
+            <button type="submit" className="submit-button">
+              Update Building
+            </button>
+            <button
+              type="button"
+              className="submit-button"
+              style={{ marginLeft: '20px' }}
+              onClick={Back}
+            >
+              Back to Buildings
+            </button>
           </div>
         </div>
-
       </form>
     </div>
   );

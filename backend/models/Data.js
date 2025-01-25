@@ -26,10 +26,7 @@ const Cities_Schema = new mongoose.Schema({
         required: true 
     },
     city_name: { type: String, required: true, unique: true },
-    map: {
-    data: Buffer, // Binary data for the file
-    contentType: String, // MIME type of the file
-  },
+    map: { type: String, required: true},
 });
 const Cities_Model = mongoose.model("cities", Cities_Schema);
 
@@ -209,10 +206,6 @@ const Images_Schema = new mongoose.Schema({
         required: true,
     },
     filename: {
-        type: String,
-        required: true,
-    },
-    front_image: {
         type: String,
         required: true,
     },
