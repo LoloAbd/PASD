@@ -235,10 +235,7 @@ const Architects = () => {
                     <td>{architect.architect_name}</td>
                     <td>{architect.en_biography}</td>
                     <td>
-                      <button
-                        className="edit-button"
-                        onClick={() => handleEdit(architect)}
-                      >
+                      <button className="edit-button" onClick={() => handleEdit(architect)} >
                         <FaEdit />
                       </button>
                       <button

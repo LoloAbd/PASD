@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEye, FaRegTrashAlt } from "react-icons/fa";
+import { FaEye, FaRegTrashAlt, FaEdit } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +22,10 @@ const ShowBuildings = () => {
   const [usage, setUsage] = useState([]);
   const [formVisible, setFormVisible] = useState(1); // 1: Buildings, 2: Status, 3: Usage
   const [selectedBuilding, setSelectedBuilding] = useState(null);
+
+  const handleEdit = (id) => {
+    navigate(`/edit-building/${id}`); // Navigate to the EditBuilding component with the building ID
+  };
 
   // Fetch all required data on component mount
   useEffect(() => {
@@ -284,6 +288,9 @@ const handleDeleteBuilding = async (buildingId, addressId) => {
                 </td>
                 <td style={{ width: "400px", overflow: "hidden"}}>{building.thsLink}</td>
                 <td>
+                  <button className="edit-button" onClick={() => handleEdit(building._id)} >
+                        <FaEdit />
+                      </button>
                 <button className="delete-button" onClick={() => handleDeleteBuilding(building._id, building.address_id)}> <FaRegTrashAlt/> </button>
               </td>
               </tr>

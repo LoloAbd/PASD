@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {FaRegTrashAlt } from "react-icons/fa";
+
 import './ImageSlider.css'; // Import the CSS file
 
 const ImageSlider = () => {
@@ -35,6 +37,18 @@ const ImageSlider = () => {
         fetchData();
     }, []);
 
+    const handleDeleteImage = async (fileId) => {
+        try {
+            await axios.delete(`http://localhost:3001/delete-image/${fileId}`);
+            // Remove the deleted image from the state
+            setImages((prevImages) => prevImages.filter((image) => image.fileId !== fileId));
+            alert('Image deleted successfully');
+        } catch (err) {
+            console.error('Error deleting image:', err);
+            alert('Failed to delete image');
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -64,7 +78,11 @@ const ImageSlider = () => {
                                     className="building-image"
                                     style={{ width: "600px", height: "350px" }}
                                 />
-                                <div className="image-description">{image.description}</div>
+                                <div className="image-description">{image.description}
+                                    <br></br>
+                                        Type: {image.Type} </div>
+                                <button className="delete" onClick={() => handleDeleteImage(image.fileId)} ><FaRegTrashAlt />
+                                </button>
                             </div>
                         ))}
                     </div>

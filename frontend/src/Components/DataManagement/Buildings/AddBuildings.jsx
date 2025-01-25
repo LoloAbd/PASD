@@ -150,9 +150,9 @@ const AddBuildings = () => {
 
   const addNotariesToBackend = async (notary) => {
       try {
-          const { building_id, notary_id, building_name } = notary;
+          const { building_id, notary_id } = notary;
           // Sends a POST request to add notary data for a building
-          await axios.post("http://localhost:3001/add-buildings-notaries", { building_id, notary_id, building_name });
+          await axios.post("http://localhost:3001/add-buildings-notaries", { building_id, notary_id });
       } catch (error) {
           console.error("Error adding notary:", error);
           alert("Failed to add notary. Please try again.");

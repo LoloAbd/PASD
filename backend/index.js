@@ -202,6 +202,36 @@ app.get('/files/:filename', (req, res) => {
 });
 
 
+// Delete endpoint
+app.delete('/delete-image/:fileId', async (req, res) => {
+    try {
+        const { fileId } = req.params;
+
+        // Convert fileId to ObjectId
+        const objectId = new mongoose.Types.ObjectId(fileId);
+
+        // Delete the file from GridFS
+        gfs.delete(objectId, async (err) => {
+            if (err) {
+                console.error('Error deleting file from GridFS:', err);
+                return res.status(500).json({ error: 'Failed to delete file from GridFS' });
+            }
+
+            // Delete the file metadata from the images collection
+            const deleteResult = await conn.db.collection('images').deleteOne({ fileId: objectId });
+
+            if (deleteResult.deletedCount === 0) {
+                console.error('File metadata not found in images collection');
+                return res.status(404).json({ error: 'File metadata not found' });
+            }
+
+            res.status(200).json({ message: 'File deleted successfully' });
+        });
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -293,6 +323,47 @@ app.get('/buildings', async (req, res) => {
   }
 });
 
+// API Endpoint to Fetch a Building by ID
+app.get('/buildings/:id', async (req, res) => {
+  try {
+    const building = await Buildings_Model.findById(req.params.id);
+    if (!building) {
+      return res.status(404).json({ message: 'Building not found' });
+    }
+    res.json(building);
+  } catch (error) {
+    console.error('Error fetching building:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update Building Endpoint
+app.put('/update-buildings/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedData = req.body;
+
+    // Validate the ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid building ID' });
+    }
+
+    // Find and update the building
+    const updatedBuilding = await Buildings_Model.findByIdAndUpdate(id, updatedData, {
+      new: true, // Return the updated document
+      runValidators: true, // Run schema validators on update
+    });
+
+    if (!updatedBuilding) {
+      return res.status(404).json({ error: 'Building not found' });
+    }
+
+    res.status(200).json({ message: 'Building updated successfully', building: updatedBuilding });
+  } catch (error) {
+    console.error('Error updating building:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // API Endpoint to Fetch Notaries
 app.get('/notaries', async (req, res) => {
@@ -791,11 +862,11 @@ app.post("/add-notary", async (req, res) => {
 
 //Add Buildings_Notaries
 app.post("/add-buildings-notaries", async (req, res) => {
-  const { building_id, notary_id, building_name } = req.body;
+  const { building_id, notary_id } = req.body;
 
   try {
     // Create and save the new notary document
-    const newNotary = new Buildings_Notaries_Model({ building_id, notary_id, building_name});
+    const newNotary = new Buildings_Notaries_Model({ building_id, notary_id});
     await newNotary.save(); // Save to MongoDB
 
     // Send success response

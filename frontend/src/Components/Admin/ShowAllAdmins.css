@@ -65,12 +65,19 @@
 
 .delete-button{
     background-color: red;
-     width: 25px;
+    width: 25px;
     height: 25px;
     padding-top: 2px;
     margin-right: 6px;
+    cursor: pointer;
 
 }
+
+
+.delete-button:hover {
+  background-color: #ffffff;
+}
+
 /* Responsive design for mobile devices */
 @media screen and (max-width: 760px) {
     .showAllAdmins h1 {

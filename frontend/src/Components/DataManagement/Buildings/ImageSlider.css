@@ -120,3 +120,25 @@
         font-size: 1.5em;
     }
 }
+
+
+.delete {
+    width: 30px;
+    height: 30px;
+    font-size: large;
+    position: absolute; /* Position the button absolutely within the container */
+    top: 10px; /* Adjust as needed */
+    left: 10%; /* Center the button horizontally */
+    transform: translateX(-50%); /* Center the button horizontally */
+    background-color: #ff0000;
+    color: black;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.delete:hover {
+    background-color: #000000;
+    color: white;
+}
