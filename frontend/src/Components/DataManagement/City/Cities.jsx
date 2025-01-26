@@ -4,6 +4,7 @@ import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { FaLocationDot, FaTreeCity } from "react-icons/fa6";
 import { FaEye, FaMap, FaEdit, FaSave } from "react-icons/fa";
+import logAction from "../../logAction";
 
 const Cities = () => {
   const [cities, setCities] = useState([]);
@@ -62,6 +63,7 @@ const Cities = () => {
     try {
       const { data } = await axios.post("http://localhost:3001/add-cities", newCity);
       alert("City added successfully!");
+      logAction("Add City", city_name);
       setAddCity(false);
       fetchCities(); // Refresh the cities list
     } catch (error) {
@@ -103,6 +105,7 @@ const Cities = () => {
       await axios.put(`http://localhost:3001/update-city/${cityId}`, updatedCity);
 
       alert("City updated successfully!");
+      logAction("Edit City", editCityName);
       setEditingCity(null); // Exit edit mode
       fetchCities(); // Refresh the cities list
     } catch (error) {

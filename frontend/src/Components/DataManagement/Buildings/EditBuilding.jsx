@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import logAction from '../../logAction';
 
 const EditBuilding = () => {
   const [building, setBuilding] = useState({
@@ -116,6 +117,7 @@ const EditBuilding = () => {
       }
 
       alert('Building and address updated successfully!');
+      logAction("Delete Building", building.building_name);
       navigate('/ShowBuildings'); // Redirect to buildings list
     } catch (error) {
       console.error('Error updating building or address:', error);

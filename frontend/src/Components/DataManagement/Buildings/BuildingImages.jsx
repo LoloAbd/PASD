@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -65,9 +65,7 @@ const BuildingImages = () => {
       alert("Image added successfully!");
       // Find the selected building name from the building_id
       const selectedBuilding = buildings.find((b) => b._id === building_id);
-      logAction("Add Building image", {
-        building_name: selectedBuilding ? selectedBuilding.building_name : "Unknown",
-      });
+      logAction("Add Building image", selectedBuilding.building_name);
 
       if (action === "submit") {
         navigate("/");
