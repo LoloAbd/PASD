@@ -731,36 +731,36 @@ app.post("/add-buildings-architects", async (req, res) => {
 
 // Add Architect
 app.post('/add-architect', async (req, res) => {
-    try {
-        const { architect_name, ar_biography, en_biography, filename } = req.body; // Get the name, biography, and image URL from the request body
+  try {
+    const { architect_name, ar_biography, en_biography, filename } = req.body; // Get data from the request body
 
-        // Validate required fields
-        if (!architect_name || !ar_biography || !en_biography || !filename) {
-            return res.status(400).json({ error: 'All fields are required, including the image URL' });
-        }
-
-        // Save architect details in the architects collection
-        const architectsDoc = await conn.db.collection('architects').insertOne({
-            architect_name,
-            ar_biography,
-            en_biography,
-            filename, // Store the image URL directly
-        });
-
-        res.status(200).json({
-            message: 'Architect added successfully',
-            architect: {
-                id: architectsDoc.insertedId,
-                architect_name,
-                ar_biography,
-                en_biography,
-                filename,
-            },
-        });
-    } catch (error) {
-        console.error('Error saving architect:', error);
-        res.status(500).json({ error: 'Failed to add architect' });
+    // Validate required fields
+    if (!architect_name || !ar_biography || !en_biography || !filename) {
+      return res.status(400).json({ error: 'All fields are required, including the image URL' });
     }
+
+    // Save architect details in the architects collection
+    const architectsDoc = await conn.db.collection('architects').insertOne({
+      architect_name,
+      ar_biography,
+      en_biography,
+      filename, // Store the image URL directly
+    });
+
+    res.status(200).json({
+      message: 'Architect added successfully',
+      architect: {
+        id: architectsDoc.insertedId,
+        architect_name,
+        ar_biography,
+        en_biography,
+        filename,
+      },
+    });
+  } catch (error) {
+    console.error('Error saving architect:', error);
+    res.status(500).json({ error: 'Failed to add architect' });
+  }
 });
 
 
