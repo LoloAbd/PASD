@@ -1,12 +1,10 @@
-
-
 /* General Styles for Building Sections */
 .building-section {
     margin-top: 20px;
     margin-bottom: 40px;
     padding: 20px;
     background-color: #ffffff;
-    border: 10px solid rgb(0, 0, 0);
+    border: 2px solid black;
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
@@ -31,18 +29,42 @@
     text-shadow: 0px 5px 10px rgba(230, 63, 239, 0.7);
 }
 
+/* Dropdown Container */
+.dropdown-container {
+    margin-bottom: 20px; /* Adds space between the select bar and results */
+    width: 500px; /* Set fixed width */
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+/* Image Grid Container */
+.image-container-wrapper {
+    background-color: #ffffff;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
+}
+
 /* Image Grid */
 .building-images {
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 10px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Two images per row */
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     justify-items: center;
+    background-color: white;
+    border: 7px solid black;
+    border-radius: 5px;
 }
 
 /* Image Container */
 .image-container {
     position: relative;
-    width: 450px; /* Half of 1200px */
+    width: 450px;
     height: 350px;
     overflow: hidden;
     border-radius: 10px;
@@ -107,7 +129,7 @@
 /* Responsive Design */
 @media screen and (max-width: 1250px) {
     .building-images {
-        grid-template-columns: 1fr; /* One image per row on small screens */
+        grid-template-columns: 1fr;
     }
 
     .image-container {
@@ -121,15 +143,14 @@
     }
 }
 
-
 .delete {
     width: 30px;
     height: 30px;
     font-size: large;
-    position: absolute; /* Position the button absolutely within the container */
-    top: 10px; /* Adjust as needed */
-    left: 10%; /* Center the button horizontally */
-    transform: translateX(-50%); /* Center the button horizontally */
+    position: absolute;
+    top: 10px;
+    left: 10%;
+    transform: translateX(-50%);
     background-color: #ff0000;
     color: black;
     border: none;
@@ -141,4 +162,8 @@
 .delete:hover {
     background-color: #000000;
     color: white;
+}
+
+.no-image {
+    color: #000000;
 }

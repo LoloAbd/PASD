@@ -176,3 +176,17 @@ td{
 .save-button:hover{
   background-color: #ac0000;
 }
+
+
+.arrow-button{
+  width: 30px;
+  height: 35px;
+  background-color: black;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.arrow-button:hover{
+  background-color: #534d4d;
+}

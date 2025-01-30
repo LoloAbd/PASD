@@ -14,7 +14,7 @@ const ShowAllAdmins = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLogPage, setCurrentLogPage] = useState(1);
   const [itemsPerPage] = useState(7);
-  const [logsPerPage] = useState(8);
+  const [logsPerPage] = useState(9);
 
   // Fetch all admins
   useEffect(() => {

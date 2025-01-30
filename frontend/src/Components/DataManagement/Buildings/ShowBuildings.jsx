@@ -5,6 +5,7 @@ import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import logAction from "../../logAction";
+import Pagination from "../../Pagination";
 
 const ShowBuildings = () => {
   const navigate = useNavigate();
@@ -114,8 +115,6 @@ const ShowBuildings = () => {
     indexOfFirstItem,
     indexOfLastItem
   );
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Navigate to AddBuilding page
   const AddBuilding = () => navigate("/AddBuildings");
@@ -311,22 +310,12 @@ const ShowBuildings = () => {
           )}
         </tbody>
       </table>
-      <div className="pagination">
-        {Array.from(
-          { length: Math.ceil(filteredBuildings.length / itemsPerPage) },
-          (_, i) => (
-            <button
-              key={i + 1}
-              className={`page-button ${
-                currentPage === i + 1 ? "active" : ""
-              }`}
-              onClick={() => paginate(i + 1)}
-            >
-              {i + 1}
-            </button>
-          )
-        )}
-      </div>
+      <Pagination
+            currentPage={currentPage}
+            totalItems={filteredBuildings.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+      />
     </>
   );
 

@@ -5,6 +5,7 @@ import { AiOutlineFieldNumber } from "react-icons/ai";
 import { FaLocationDot, FaTreeCity } from "react-icons/fa6";
 import { FaEye, FaMap, FaEdit, FaSave } from "react-icons/fa";
 import logAction from "../../logAction";
+import Pagination from "../../Pagination";
 
 const Cities = () => {
   const [cities, setCities] = useState([]);
@@ -296,20 +297,12 @@ const Cities = () => {
             )}
           </tbody>
         </table>
-        <div className="pagination">
-          {Array.from(
-            { length: Math.ceil(filteredCities.length / itemsPerPage) },
-            (_, i) => (
-              <button
-                key={i}
-                className={`page-button ${currentPage === i + 1 ? "active" : ""}`}
-                onClick={() => paginate(i + 1)}
-              >
-                {i + 1}
-              </button>
-            )
-          )}
-        </div>
+        <Pagination
+            currentPage={currentPage}
+            totalItems={filteredCities.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
       </div>
     );
   }
