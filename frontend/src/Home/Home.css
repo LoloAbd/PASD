@@ -16,12 +16,12 @@ body {
 
 .menu {
   text-align: center;
-  margin-top: 20vh; /* Position in the first 1/3 of the page */
+  margin-top: 15vh; /* Position in the first 1/3 of the page */
 }
 
 
 .menu ul {
-  font-size: 26px;
+  font-size: 22px;
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -31,7 +31,7 @@ body {
 }
 
 .menu-item ul{
-  font-size: 26px;
+  font-size: 20px;
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -50,7 +50,7 @@ body {
 }
 
 .Link  {
-  font-size: 18px;
+  font-size: 14px;
   font-family: 'Helvetica', sans-serif; /* Helvetica font */
 }
 
@@ -76,8 +76,8 @@ body {
   background-color: #111; /* Slightly lighter black for dropdown */
   border-radius: 8px; /* Rounded corners */
   padding: 10px 0; /* Padding for dropdown */
-  margin-top: 10px; /* Increased margin for better spacing */
-  min-width: 280px; /* Wider dropdown */
+  margin-top: 8px; /* Increased margin for better spacing */
+  min-width: 250px; /* Wider dropdown */
   z-index: 1; /* Ensure dropdown appears above other content */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
@@ -119,7 +119,7 @@ body {
   .menu ul li .dropdown {
     position: static; /* Change dropdown to static position for smaller screens */
     width: 100%; /* Make dropdown full width */
-    margin-top: 5px; /* Reduce margin for smaller screens */
+    margin-top: 3px; /* Reduce margin for smaller screens */
   }
 
   .menu ul li .dropdown li {

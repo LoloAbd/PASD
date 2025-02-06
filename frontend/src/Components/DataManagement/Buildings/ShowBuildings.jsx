@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEye, FaRegTrashAlt, FaEdit } from "react-icons/fa";
+import { FaEye, FaRegTrashAlt, FaEdit, FaLink } from "react-icons/fa";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
@@ -228,6 +228,7 @@ const ShowBuildings = () => {
           onChange={handleSearch}
         />
         <button className="btn btn-primary add-button" onClick={AddBuilding}>+</button>
+        <button className="add-button" onClick={() => navigate("/ThsLink")}  ><FaLink /></button>
       </div>
       <table className="custom-table" style={{ width: "1400px" }}>
         <thead>
@@ -235,7 +236,7 @@ const ShowBuildings = () => {
             <th>
               <AiOutlineFieldNumber />
             </th>
-            <th onClick={() => handleSort("building_name")}>
+            <th onClick={() => handleSort("building_name")} style={{ width: "230px" }}>
               Building Name <BiSortAlt2 />
             </th>
             <th onClick={() => handleSort("documentationDate")}>
@@ -243,9 +244,9 @@ const ShowBuildings = () => {
             </th>
             <th>Status</th>
             <th>Usages</th>
-            <th>Street</th>
+            <th style={{ width: "230px" }}>Street</th>
             <th>City</th>
-            <th style={{ width: "400px", overflow: "hidden" }}>360 View Link</th>
+            <th style={{ width: "350px", overflow: "hidden" }}>360 View Link</th>
             <th>Action</th>
           </tr>
         </thead>

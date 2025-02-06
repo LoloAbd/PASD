@@ -32,7 +32,7 @@ const ThsLink = () => {
         )
       );
       alert("building updated successfully!");
-        navigate("/")
+        navigate("/ShowBuildings")
     } catch (err) {
       console.error("Error updating building:", err);
       alert("Failed to update building. Please try again.");
@@ -42,7 +42,7 @@ const ThsLink = () => {
 
   return (
     <div className="BuildingImagesWrapper">
-      <div className="BuildingImagesBox">
+      <div className="BuildingImagesBox" style={{width: "650px"}}>
         <h2 className="BuildingImagesTitle">360 Degree Link</h2>
         <form id="uploadForm" onSubmit={handleSubmit}>
           <div className="form-column">
@@ -75,6 +75,11 @@ const ThsLink = () => {
 
             <button type="submit" className="BuildingImagesBtn"  style={{ width: "200px", display: "block", margin: "0 auto" }}>
                 Submit
+            </button>
+            <button className="BuildingImagesBtn"
+              onClick={() => navigate("/ShowBuildings")}
+              style={{ width: "200px", display: "block", margin: "10px auto" }}>
+                Back
             </button>
 
                       

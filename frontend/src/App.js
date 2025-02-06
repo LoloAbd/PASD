@@ -15,8 +15,9 @@ import BuildingImages from "./Components/DataManagement/Buildings/BuildingImages
 import AddBuildings from "./Components/DataManagement/Buildings/AddBuildings";
 import AddArchitects from "./Components/DataManagement/Architects/AddArchitects";
 import ThsLink from "./Components/DataManagement/Buildings/ThsLink";
-import DonationPage from "./Components/DonationPage ";
 import EditBuilding from "./Components/DataManagement/Buildings/EditBuilding";
+import Events from "./Components/DataManagement/Events/Events"
+import ArchCollections from "./Components/DataManagement/Architects/ArchCollections"
 import Home from "./Home/Home";
 import "./Dashboard.css";
 
@@ -196,8 +197,9 @@ function App() {
               <Route path="/AddBuildings" element={<AddBuildings />} />
               <Route path="/AddArchitects" element={<AddArchitects />} />
               <Route path="/ThsLink" element={<ThsLink />} />
-              <Route path="/DonationPage" element={<DonationPage />} />
               <Route path="/edit-building/:id" element={<EditBuilding />} />
+              <Route path="/ArchCollections" element={<ArchCollections />} />
+              <Route path="/Events" element={<Events />} />
             </>
           ) : (
             <>

@@ -3,7 +3,7 @@ import axios from "axios";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import { FaLocationDot, FaTreeCity } from "react-icons/fa6";
-import { FaEye, FaMap, FaEdit, FaSave } from "react-icons/fa";
+import { FaEye, FaEdit, FaSave } from "react-icons/fa";
 import logAction from "../../logAction";
 import Pagination from "../../Pagination";
 
@@ -12,16 +12,20 @@ const Cities = () => {
   const [countries, setCountries] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6);
+  const [itemsPerPage] = useState(7);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [addCity, setAddCity] = useState(false);
   const [city_name, setCityName] = useState("");
   const [country_id, setCountryId] = useState("");
-  const [mapUrl, setMapUrl] = useState(""); // Changed to handle URL instead of file
-  const [editingCity, setEditingCity] = useState(null); // Track which city is being edited
-  const [editCityName, setEditCityName] = useState(""); // State for editing city name
-  const [editCountryId, setEditCountryId] = useState(""); // State for editing country ID
-  const [editMapUrl, setEditMapUrl] = useState(""); // State for editing map URL
+  const [roadFile, setRoadFile] = useState(null);
+  const [buildingFile, setBuildingFile] = useState(null);
+  const [borderFile, setBorderFile] = useState(null);
+  const [editingCity, setEditingCity] = useState(null);
+  const [editCityName, setEditCityName] = useState("");
+  const [editCountryId, setEditCountryId] = useState("");
+  const [editRoadFile, setEditRoadFile] = useState(null);
+  const [editBuildingFile, setEditBuildingFile] = useState(null);
+  const [editBorderFile, setEditBorderFile] = useState(null);
 
   const fetchCities = useCallback(async () => {
     try {
@@ -50,23 +54,28 @@ const Cities = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!city_name || !country_id || !mapUrl) {
-      alert("Please fill out all required fields.");
+    if (!city_name || !country_id || !roadFile || !buildingFile || !borderFile) {
+      alert("Please fill out all required fields and upload all files.");
       return;
     }
 
-    const newCity = {
-      city_name,
-      country_id,
-      map: mapUrl, // Use the map URL
-    };
+    const formData = new FormData();
+    formData.append("city_name", city_name);
+    formData.append("country_id", country_id);
+    formData.append("road", roadFile);
+    formData.append("building", buildingFile);
+    formData.append("border", borderFile);
 
     try {
-      const { data } = await axios.post("http://localhost:3001/add-cities", newCity);
+      const { data } = await axios.post("http://localhost:3001/add-cities", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       alert("City added successfully!");
       logAction("Add City", city_name);
       setAddCity(false);
-      fetchCities(); // Refresh the cities list
+      fetchCities();
     } catch (error) {
       console.error("Error adding city:", error);
       alert("Failed to add city. Please try again.");
@@ -89,26 +98,34 @@ const Cities = () => {
   };
 
   const handleEdit = (city) => {
-    setEditingCity(city._id); // Set the city ID being edited
-    setEditCityName(city.city_name); // Set the current city name
-    setEditCountryId(city.country_id); // Set the current country ID
-    setEditMapUrl(city.map); // Set the current map URL
+    setEditingCity(city._id);
+    setEditCityName(city.city_name);
+    setEditCountryId(city.country_id);
+    // Assuming the city object has road, building, and border fields
+    setEditRoadFile(city.road);
+    setEditBuildingFile(city.building);
+    setEditBorderFile(city.border);
   };
 
   const handleSaveEdit = async (cityId) => {
     try {
-      const updatedCity = {
-        city_name: editCityName,
-        country_id: editCountryId,
-        map: editMapUrl, // Use the updated map URL
-      };
+      const formData = new FormData();
+      formData.append("city_name", editCityName);
+      formData.append("country_id", editCountryId);
+      if (editRoadFile) formData.append("road", editRoadFile);
+      if (editBuildingFile) formData.append("building", editBuildingFile);
+      if (editBorderFile) formData.append("border", editBorderFile);
 
-      await axios.put(`http://localhost:3001/update-city/${cityId}`, updatedCity);
+      await axios.put(`http://localhost:3001/update-city/${cityId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       alert("City updated successfully!");
       logAction("Edit City", editCityName);
-      setEditingCity(null); // Exit edit mode
-      fetchCities(); // Refresh the cities list
+      setEditingCity(null);
+      fetchCities();
     } catch (error) {
       console.error("Error updating city:", error);
       alert("Failed to update city. Please try again.");
@@ -123,12 +140,10 @@ const Cities = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentCities = filteredCities.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   if (addCity) {
     return (
       <div className="AddAdminHome">
-        <div className="AddAdminWrapper" style={{ height: "450px" }}>
+        <div className="AddAdminWrapper">
           <div className="AddAdminFormBox">
             <h2 className="AddAdminTitle">Add New City</h2>
             <form onSubmit={handleSubmit}>
@@ -146,14 +161,32 @@ const Cities = () => {
 
               <div className="AddAdminInputBox">
                 <input
-                  type="text"
-                  name="map"
-                  value={mapUrl}
-                  onChange={(e) => setMapUrl(e.target.value)}
+                  type="file"
+                  name="road"
+                  onChange={(e) => setRoadFile(e.target.files[0])}
                   required
                 />
-                <label>Map URL</label>
-                <FaMap className="icon" />
+                <label>Roads File</label>
+              </div>
+
+              <div className="AddAdminInputBox">
+                <input
+                  type="file"
+                  name="building"
+                  onChange={(e) => setBuildingFile(e.target.files[0])}
+                  required
+                />
+                <label>Buildings File</label>
+              </div>
+
+              <div className="AddAdminInputBox">
+                <input
+                  type="file"
+                  name="border"
+                  onChange={(e) => setBorderFile(e.target.files[0])}
+                  required
+                />
+                <label>Borders File</label>
               </div>
 
               <div className="AddAdminInputBox">
@@ -214,7 +247,9 @@ const Cities = () => {
               </th>
               <th onClick={() => handleSort("city_name")}>City Name <BiSortAlt2 /></th>
               <th onClick={() => handleSort("country_id")}>Country <BiSortAlt2 /></th>
-              <th>Map</th>
+              <th>Road File</th>
+              <th>Building File</th>
+              <th>Border File</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -253,20 +288,59 @@ const Cities = () => {
                   <td>
                     {editingCity === city._id ? (
                       <input
-                        type="text"
-                        value={editMapUrl}
-                        onChange={(e) => setEditMapUrl(e.target.value)}
+                        type="file"
+                        onChange={(e) => setEditRoadFile(e.target.files[0])}
                       />
                     ) : (
-                      city.map ? (
-                        <a href={city.map} target="_blank" rel="noopener noreferrer">
+                      city.road ? (
+                        <a href={`http://localhost:3001/${city.road}`} target="_blank" rel="noopener noreferrer">
                           <button className="view-button">
                             <FaEye /> View
                           </button>
                         </a>
                       ) : (
-                        <button className="view-button">
-                          <FaEye /> View
+                        <button className="view-button" disabled>
+                          <FaEye /> No File
+                        </button>
+                      )
+                    )}
+                  </td>
+                  <td>
+                    {editingCity === city._id ? (
+                      <input
+                        type="file"
+                        onChange={(e) => setEditBuildingFile(e.target.files[0])}
+                      />
+                    ) : (
+                      city.building ? (
+                        <a href={`http://localhost:3001/${city.building}`} target="_blank" rel="noopener noreferrer">
+                          <button className="view-button">
+                            <FaEye /> View
+                          </button>
+                        </a>
+                      ) : (
+                        <button className="view-button" disabled>
+                          <FaEye /> No File
+                        </button>
+                      )
+                    )}
+                  </td>
+                  <td>
+                    {editingCity === city._id ? (
+                      <input
+                        type="file"
+                        onChange={(e) => setEditBorderFile(e.target.files[0])}
+                      />
+                    ) : (
+                      city.border ? (
+                        <a href={`http://localhost:3001/${city.border}`} target="_blank" rel="noopener noreferrer">
+                          <button className="view-button">
+                            <FaEye /> View
+                          </button>
+                        </a>
+                      ) : (
+                        <button className="view-button" disabled>
+                          <FaEye /> No File
                         </button>
                       )
                     )}
@@ -292,7 +366,7 @@ const Cities = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="5">No cities found.</td>
+                <td colSpan="7">No cities found.</td>
               </tr>
             )}
           </tbody>

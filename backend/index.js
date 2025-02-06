@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const multer = require("multer");
+const path = require("path");
+const cron = require('node-cron');
 const Admin = require('./models/Admin');
 const models = require('./models/Data');
 const {
@@ -21,7 +24,9 @@ const {
     Buildings_Tenants_Model,
     Buildings_Usage_Model,
     Buildings_Status_Model,
-    Images_Model
+    Images_Model,
+    Sketches_Model,
+    Event
 
 } = models;
 
@@ -51,6 +56,32 @@ mongoose.connect(process.env.MONGO_URI, {
 const conn = mongoose.createConnection(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+});
+
+
+cron.schedule('0 * * * *', async () => {
+  try {
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
+      const result = await Event.deleteMany({ createdAt: { $lt: twentyFourHoursAgo } });
+      console.log(`${result.deletedCount} events deleted`);
+  } catch (error) {
+      console.error('Error deleting expired events:', error.message);
+  }
+});
+
+// Add an event
+app.post('/Events', async (req, res) => {
+  const { title, content } = req.body;
+  const newEvent = new Event({ title, content });
+  await newEvent.save();
+  res.status(201).json(newEvent);
+});
+
+// Get all active events (not older than 24 hours)
+app.get('/Events', async (req, res) => {
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const events = await Event.find({ createdAt: { $gte: twentyFourHoursAgo } });
+  res.json(events);
 });
 
 
@@ -224,6 +255,35 @@ app.post("/add-images", async (req, res) => {
   }
 });
 
+// Insert sketches
+app.post("/add-sketches", async (req, res) => {
+  try {
+    const { architect_id, description, image_url, referenceType, pictureReference } = req.body;
+
+    // Validate required fields
+    if (!architect_id || !image_url) {
+      return res.status(400).json({ message: "Architect name and image URL are required" });
+    }
+
+    // Create a new sketch
+    const newSketch = new Sketches_Model({
+      architect_id,
+      description,
+      image_url,
+      referenceType,
+      pictureReference,
+    });
+
+    // Save the sketches to the database
+    await newSketch.save();
+
+    res.status(201).json({ message: "Sketches added successfully", sketches: newSketch });
+  } catch (error) {
+    console.error("Error adding Sketches:", error);
+    res.status(500).json({ message: "Failed to add Sketches" });
+  }
+});
+
 
 // Delete image
 app.delete('/delete-image/:id', async (req, res) => {
@@ -287,33 +347,7 @@ app.get('/addresses/:id', async (req, res) => {
 
 
 // Update Building Endpoint
-/*app.put('/update-buildings/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedData = req.body;
 
-    // Validate the ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid building ID' });
-    }
-
-    // Find and update the building
-    const updatedBuilding = await Buildings_Model.findByIdAndUpdate(id, updatedData, {
-      new: true, // Return the updated document
-      runValidators: true, // Run schema validators on update
-    });
-
-    if (!updatedBuilding) {
-      return res.status(404).json({ error: 'Building not found' });
-    }
-
-    res.status(200).json({ message: 'Building updated successfully', building: updatedBuilding });
-  } catch (error) {
-    console.error('Error updating building:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-*/
 app.put('/update-buildings/:id', async (req, res) => {
   try {
     const updatedBuilding = await Buildings_Model.findByIdAndUpdate(
@@ -466,7 +500,61 @@ app.put('/notaries/:id', async (req, res) => {
 
 
 // Add City
-app.post("/add-cities", async (req, res) => {
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Save files in the 'uploads' directory
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// Add City with file uploads
+app.post("/add-cities", upload.fields([
+  { name: "road", maxCount: 1 },
+  { name: "building", maxCount: 1 },
+  { name: "border", maxCount: 1 },
+]), async (req, res) => {
+  try {
+    const { city_name, country_id } = req.body;
+
+    // Validate required fields
+    if (!city_name || !country_id || !req.files) {
+      return res.status(400).json({ message: "All fields and files are required" });
+    }
+
+    // Get file paths
+    const roadFile = req.files["road"] ? req.files["road"][0].path : null;
+    const buildingFile = req.files["building"] ? req.files["building"][0].path : null;
+    const borderFile = req.files["border"] ? req.files["border"][0].path : null;
+
+    // Create a new city
+    const newCity = new Cities_Model({
+      country_id,
+      city_name,
+      road: roadFile,
+      building: buildingFile,
+      border: borderFile,
+    });
+
+    // Save the city to the database
+    await newCity.save();
+
+    res.status(201).json({ message: "City added successfully", city: newCity });
+  } catch (error) {
+    console.error("Error adding city:", error);
+    res.status(500).json({ message: "Failed to add city" });
+  }
+});
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+/*app.post("/add-cities", async (req, res) => {
   try {
     const { city_name, country_id, map } = req.body;
 
@@ -490,7 +578,7 @@ app.post("/add-cities", async (req, res) => {
     console.error("Error adding city:", error);
     res.status(500).json({ message: "Failed to add city" });
   }
-});
+});*/
 
 // Update city
 app.put("/update-city/:id", async (req, res) => {

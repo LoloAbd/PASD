@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaEye} from "react-icons/fa";
+import { FaEdit, FaEye, FaUserPlus } from "react-icons/fa";
+import { MdAddPhotoAlternate } from "react-icons/md";
 import { BiSortAlt2 } from "react-icons/bi";
 import { AiOutlineFieldNumber } from "react-icons/ai";
 import Pagination from "../../Pagination";
@@ -8,7 +9,7 @@ import logAction from "../../logAction";
 import "./DataPage.css";
 import { useNavigate } from "react-router-dom";
 
-const Architects = () => {
+const Architects = () => { 
   const navigate = useNavigate();
   const [architects, setArchitects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -228,7 +229,8 @@ const Architects = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
-            <button className="btn btn-primary add-button" onClick={() => navigate("/AddArchitects")}  >+</button>
+                <button className="add-button" onClick={() => navigate("/AddArchitects")}  ><FaUserPlus /></button>
+                <button className="add-button" onClick={() => navigate("/ArchCollections")}  ><MdAddPhotoAlternate /></button>
           </div>
           <table className="custom-table" style={{ width: "1200px" }}>
             <thead>

@@ -1,0 +1,144 @@
+/* Container for the event section */
+.event-container {
+    display: flex;
+    justify-content: space-between;
+    width: 1200px; /* Adjust as needed */
+    margin: 80px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    position: relative; /* Needed for the pseudo-element */
+}
+
+/* Dashed line between the form and events list */
+.event-container::before {
+    content: '';
+    position: absolute;
+    top: 20px; /* Adjust based on padding */
+    bottom: 20px; /* Adjust based on padding */
+    left: 50%; /* Position in the middle */
+    border-left: 5px dashed #000000; /* Dashed line */
+}
+
+/* Left column for the form */
+.event-form {
+    flex: 1;
+    margin-right: 20px; /* Space between form and events list */
+    padding-right: 20px; /* Add padding to avoid overlap with the dashed line */
+}
+
+/* Right column for the events list */
+.events-list {
+    flex: 1;
+    margin-left: 20px; /* Space between form and events list */
+    padding-left: 20px; /* Add padding to avoid overlap with the dashed line */
+}
+
+/* Heading */
+h1 {
+    color: black;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Form styling */
+form {
+    margin-bottom: 30px;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+.event-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: black;
+}
+
+.event-input[type="text"],
+.event-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.event-input[type="text"]:focus,
+.event-textarea:focus {
+    border-color: #061d36;
+    outline: none;
+}
+
+.event-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.event-button {
+    width: 40%;
+    background-color: #061d36;
+    color: #fff;
+    border: 3px solid black;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;  /* Makes the button a block element */
+    margin: 10px auto;  /* Centers horizontally */
+    text-align: center; /* Ensures text stays centered */
+}
+
+.event-button:hover {
+    background-color: #0056b3;
+}
+
+/* Events list styling */
+.event-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    transition: box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.event-card h3 {
+    margin: 0 0 10px;
+    color: #333;
+}
+
+.event-card p {
+    margin: 0 0 10px;
+    color: #555;
+}
+
+.event-card small {
+    display: block;
+    margin-top: 10px;
+    color: #888;
+    font-size: 14px;
+}
+
+/* Emphasis text for event cards */
+.event-card small.emphasis {
+    color: #e74c3c; /* Red color for emphasis */
+    font-weight: bold;
+}
+
+/* No events message */
+.no-events {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}

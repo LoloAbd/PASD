@@ -16,6 +16,7 @@ import {
   faUserShield,
   faCity,
   faLink,
+  faCalendarPlus,
 } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
@@ -94,14 +95,16 @@ const Home = () => {
             </a>
             {dataOpen && (
               <ul className="dropdown">
+                {isAdminAllowed && 
+                  <li>
+                  <Link to="/Events" className="Link">
+                    <FontAwesomeIcon icon={faCalendarPlus} className="icon" /> Add Events
+                  </Link>
+                </li>
+                }
                 <li>
                   <Link to="/ShowBuildings" className="Link">
                     <FontAwesomeIcon icon={faBuilding} className="icon" /> Buildings
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/ThsLink" className="Link">
-                    <FontAwesomeIcon icon={faLink} className="icon" /> 360 Link for building
                   </Link>
                 </li>
                 <li>

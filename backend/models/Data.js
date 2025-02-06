@@ -26,7 +26,9 @@ const Cities_Schema = new mongoose.Schema({
         required: true 
     },
     city_name: { type: String, required: true, unique: true },
-    map: { type: String, required: true},
+    road: { type: String}, // Path to the road file
+    building: { type: String }, // Path to the building file
+    border: { type: String }, // Path to the border file
 });
 const Cities_Model = mongoose.model("cities", Cities_Schema);
 
@@ -228,9 +230,43 @@ const Images_Schema = new mongoose.Schema({
 
 const Images_Model = mongoose.model("images", Images_Schema);
 
-module.exports = Images_Model;
 
+const Sketches_Schema = new mongoose.Schema({
+    architect_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "architects",
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+    image_url: {
+        type: String,
+        required: true,
+    },
+    referenceType: {
+        type: String,
+        enum: ["ownedByPASD", "pictureReference"],
+        required: true,
+    },
+    pictureReference: {
+        type: String,
+        required: function () {
+            return this.referenceType === "pictureReference";
+        },
+    }
+});
 
+const Sketches_Model = mongoose.model("sketches", Sketches_Schema);
+
+const eventSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+  createdAt: { type: Date, default: Date.now },
+});
+
+const Event = mongoose.model("event", eventSchema);
 
 // Export all models as an object
 module.exports = {
@@ -251,5 +287,7 @@ module.exports = {
     Buildings_Tenants_Model,
     Buildings_Status_Model,
     Buildings_Usage_Model,
-    Images_Model
+    Images_Model,
+    Sketches_Model,
+    Event
 };

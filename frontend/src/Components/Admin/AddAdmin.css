@@ -63,7 +63,7 @@
 .AddAdminInputBox {
     position: relative;
     width: 100%;
-    margin: 20px 0; /* Increased margin for better spacing */
+    margin: 30px 0 20px 0; /* Increased margin for better spacing */
 }
 
 .AddAdminInputBox input,
