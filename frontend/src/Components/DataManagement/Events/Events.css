@@ -42,16 +42,9 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* Form styling */
-form {
-    margin-bottom: 30px;
-}
-
-form div {
-    margin-bottom: 15px;
-}
 
 .event-label {
+    margin-top: 15px;
     display: block;
     font-weight: bold;
     margin-bottom: 5px;

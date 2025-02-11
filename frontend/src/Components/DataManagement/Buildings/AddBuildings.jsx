@@ -410,7 +410,7 @@ const AddBuildings = () => {
 
             <label className="add-building-label">Area (in square meters)</label>
             <div className="form-group">
-              <input type="number" name="area" onChange={(e) => setArea(e.target.value)} min="1" required/>
+              <input type="number" name="area" onChange={(e) => setArea(e.target.value)} min="1"/>
             </div>
 
             <label className="add-building-label">Number of Floors</label>

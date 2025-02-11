@@ -500,7 +500,7 @@ app.put('/notaries/:id', async (req, res) => {
 
 
 // Add City
-
+/*
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -552,49 +552,52 @@ app.post("/add-cities", upload.fields([
   }
 });
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));*/
 
-/*app.post("/add-cities", async (req, res) => {
+app.post("/add-cities", async (req, res) => {
   try {
-    const { city_name, country_id, map } = req.body;
+    const { city_name, country_id, map_pic } = req.body;
 
     // Validate required fields
-    if (!city_name || !country_id || !map) {
+    if (!city_name || !country_id || !map_pic) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Check if city already exists
+    const existingCity = await Cities_Model.findOne({ city_name, country_id });
+    if (existingCity) {
+      return res.status(400).json({ message: "City already exists" });
+    }
+
     // Create a new city
-    const newCity = new Cities_Model({
-      city_name,
-      country_id,
-      map,
-    });
+    const newCity = new Cities_Model({ city_name, country_id, map_pic });
 
     // Save the city to the database
     await newCity.save();
 
-    res.status(201).json({ message: "City added successfully", cities: newCity });
+    res.status(201).json({ message: "City added successfully", city: newCity });
   } catch (error) {
-    console.error("Error adding city:", error);
-    res.status(500).json({ message: "Failed to add city" });
+    console.error("Error adding city:", error.message);
+    res.status(500).json({ message: "Failed to add city", error: error.message });
   }
-});*/
+});
+
 
 // Update city
 app.put("/update-city/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { city_name, country_id, map } = req.body;
+    const { city_name, country_id, map_pic } = req.body;
 
     // Validate required fields
-    if (!city_name || !country_id || !map) {
+    if (!city_name || !country_id || !map_pic) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     // Find the city by ID and update it
     const updatedCity = await Cities_Model.findByIdAndUpdate(
       id,
-      { city_name, country_id, map },
+      { city_name, country_id, map_pic },
       { new: true } // Return the updated document
     );
 
@@ -649,16 +652,17 @@ app.get("/status", async (req, res) => {
 // Add building testt
 app.post("/AddBuilding", async (req, res) => {
   const { building_name,area, ar_description,en_description, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id} = req.body;
-
+  const buildingArea = area || "Unknown";
     try {
-    const newBuilding = await Buildings_Model.create({building_name,area, ar_description,en_description, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id});
+    const newBuilding = await Buildings_Model.create({building_name,
+      area: buildingArea, 
+      ar_description,en_description, dateOfConstruction, documentationDate, numberOfFloors, bdr_id, address_id});
    
     res.status(201).json({ message: "Building added successfully!", buildings: newBuilding});
   } catch (error) {
     res.status(500).json({ error: "Error adding building" });
   }
 });
-
 
 
 // Add building with a 360 link

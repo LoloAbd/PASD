@@ -76,15 +76,26 @@ const EditBuilding = () => {
       .split(',')
       .map((coord) => parseFloat(coord.trim()))
       .filter((coord) => !isNaN(coord)); // Remove invalid values
-    setAddress((prevState) => ({
-      ...prevState,
-      coordinates: coordinatesArray,
-    }));
+
+    // If both coordinates are valid, update the state
+    if (coordinatesArray.length === 2) {
+      setAddress((prevState) => ({
+        ...prevState,
+        coordinates: coordinatesArray, // Store as an array of numbers
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
+      // Ensure coordinates are valid before updating
+      const updatedAddress = {
+        ...address,
+        coordinates: address.coordinates.length === 2 ? address.coordinates : undefined, // Only send if valid
+      };
+
       // Update the building details
       const buildingResponse = await fetch(`http://localhost:3001/update-buildings/${id}`, {
         method: 'PUT',
@@ -105,10 +116,7 @@ const EditBuilding = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            ...address,
-            coordinates: address.coordinates, // Ensure coordinates are sent as an array
-          }),
+          body: JSON.stringify(updatedAddress), // Send updated address with coordinates if valid
         });
 
         if (!addressResponse.ok) {
@@ -117,7 +125,7 @@ const EditBuilding = () => {
       }
 
       alert('Building and address updated successfully!');
-      logAction("Delete Building", building.building_name);
+      logAction("Edit Building", building.building_name);
       navigate('/ShowBuildings'); // Redirect to buildings list
     } catch (error) {
       console.error('Error updating building or address:', error);
@@ -154,7 +162,6 @@ const EditBuilding = () => {
                 value={building.area}
                 onChange={handleChange}
                 min="1"
-                required
               />
             </div>
 

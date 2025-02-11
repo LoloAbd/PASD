@@ -26,10 +26,9 @@ const Cities_Schema = new mongoose.Schema({
         required: true 
     },
     city_name: { type: String, required: true, unique: true },
-    road: { type: String}, // Path to the road file
-    building: { type: String }, // Path to the building file
-    border: { type: String }, // Path to the border file
+    map_pic: { type: String, required: true}, 
 });
+
 const Cities_Model = mongoose.model("cities", Cities_Schema);
 
 // Addresses Model
@@ -55,7 +54,7 @@ const bdr_Model = mongoose.model("bdr", bdr_Schema);
 // Buildings Model
 const Buildings_Schema = new mongoose.Schema({
     building_name: { type: String},
-    area: { type: String},
+    area: { type: String, default: "Unknown"},
     en_description: { type: String },
     ar_description: { type: String},
     thsLink: { type: String},

@@ -94,18 +94,6 @@ const ArchCollections = () => {
               </div>
 
               <div className="InputGroup">
-                <label htmlFor="description">Sketch Description</label>
-                <textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Right Column */}
-            <div className="form-column">
-              <div className="InputGroup">
                 <label htmlFor="image_url">Sketch URL</label>
                 <input
                   type="url"
@@ -148,7 +136,19 @@ const ArchCollections = () => {
                   required
                 />
               )}
+            </div>
 
+            {/* Right Column */}
+            <div className="form-column">
+              <div className="InputGroup">
+                <label htmlFor="description">Sketch Description</label>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+              
               {/* Buttons */}
               <div className="button-container">
                 <button
@@ -157,12 +157,12 @@ const ArchCollections = () => {
                 >
                   Add Another Sketch
                 </button>
-                <button
-                  type="button"
-                  onClick={(e) => handleSubmit(e, "submit")}
-                  className="BuildingImagesBtn"
-                >
+                <button type="button" onClick={(e) => handleSubmit(e, "submit")}
+                  className="BuildingImagesBtn">
                   Submit
+                </button>
+                <button className="BuildingImagesBtn" onClick={() => navigate("/Architects")}>
+                    Back
                 </button>
               </div>
             </div>
