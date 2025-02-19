@@ -1,0 +1,194 @@
+.table-container {
+    display: flex;                /* Make the container a flexbox */
+    flex-direction: column;       /* Align children in a column */
+    align-items: center;          /* Center children horizontally */
+    justify-content: center;      /* Center children vertically */
+    min-height: 100vh;            /* Full viewport height */
+    padding: 40px;
+}
+
+.relatedHead {
+  background-color: white;
+  margin-bottom: 20px;
+}
+
+.table-container h1 {
+    font-size: 28px;
+    color: var(--black);
+}
+
+.controls {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.search-bar {
+    width: 300px;
+    padding: 10px;
+    margin-right: 15px;
+}
+
+.add-button {
+  background-color: black;
+  color: white;
+  display: flex;
+  align-items: center;
+  border: 3px solid black;
+  border-radius: 7px;
+}
+
+.search-bar:focus {
+  border-color: #555;
+}
+
+.add-button:hover {
+  background-color: gray;
+}
+
+.custom-table {
+  width: 800px;
+  table-layout: fixed;
+  overflow: hidden;
+  border-collapse: collapse;
+  color: black;
+  background-color: white;
+  border: 4px solid rgba(2, 2, 127, 0.79);
+}
+
+.custom-table thead th {
+  background-color: black;
+  color: white;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px; /* Reduced font size for table headers */
+}
+
+.custom-table tbody td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px; /* Reduced font size for table cells */
+}
+
+.custom-table tbody tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+.custom-table tbody tr:nth-of-type(even) {
+  background-color: white;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #e0e0e0;
+}
+
+.edit-button,
+.add-button,
+.view-button {
+  margin-right: 10px;
+  padding: 6px 6px 6px 6px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+}
+
+.edit-button {
+  background-color: #ffc107; /* Warning color */
+}
+
+.edit-button:hover {
+  background-color: #000000;
+}
+
+.view-button {
+  cursor: pointer;
+  background-color: #091ce7; 
+}
+
+.view-button:hover {
+  background-color: #000000; 
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.page-button {
+  background-color: transparent;
+  border: 1px solid #ddd;
+  color: black;
+  padding: 8px 12px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+td {
+  color: black;
+}
+
+.page-button.active {
+  background-color: black;
+  color: white;
+  border-color: black;
+}
+
+.page-button:hover {
+  background-color: #333333;
+  color: white;
+}
+
+.view-images {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  background-color: #d49efb; 
+}
+
+.view-images:hover {
+  background-color: #ffffff; 
+}
+
+.add-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: x-large;
+}
+
+.save-button {
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+  color: #ffffff;
+  background-color: #01490a;
+}
+
+.save-button:hover {
+  background-color: #ac0000;
+}
+
+.arrow-button {
+  width: 30px;
+  height: 35px;
+  background-color: black;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.arrow-button:hover {
+  background-color: #534d4d;
+}
